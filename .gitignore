@@ -1,2 +1,62 @@
+# Build artifacts
 .gradle/
 build/
+bin/
+target/
+dist/
+out/
+classes/
+*.class
+*.jar
+*.war
+*.ear
+*.zip
+*.tar
+*.gz
+
+# IDE files
+.vscode/
+.idea/
+*.iml
+.project
+.cproject
+.settings/
+.classpath
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+logs/
+tmp/
+temp/
+
+# Runtime files
+application-local.yml
+application-dev.yml
+application-prod.yml
+*.db
+*.sqlite
+*.h2
+
+# Test reports
+test-results/
+test-output/
+surefire-reports/
+failsafe-reports/
+
+# Dependency directories (optional, if using local dependencies)
+lib/
+libs/
+
+# Local configuration
+local.properties
+gradle.properties.user
+
+# Gradle Wrapper binary (should not be versionized)
+gradle/wrapper/gradle-wrapper.jar

@@ -2,10 +2,40 @@
 
 This project is a RESTful API built with Kotlin and Spring Boot.
 
+> **Note:** This is a prototype project for demonstration purposes. It is not production-ready and may lack proper error handling, security measures, and other production considerations.
+
 ## Tech Stack
-- **Language**: Kotlin 1.9.0
+- **Language**: Kotlin 1.9.20
 - **Framework**: Spring Boot 3.2.0
 - **Build Tool**: Gradle
+- **Java Version**: 21
+
+## Prerequisites
+- Java 21 or higher
+- Gradle (or use the included Gradle wrapper)
+- PostgreSQL database (for full functionality)
+
+## Running the Application
+
+### Using Gradle Wrapper
+```bash
+./gradlew bootRun
+```
+
+### Using Gradle
+```bash
+gradle bootRun
+```
+
+The application will start on port 8080 by default.
+
+### Database Configuration
+The application is configured to connect to a PostgreSQL database with the following settings:
+- **URL**: `jdbc:postgresql://localhost:5432/medical_data`
+- **Username**: `admin`
+- **Password**: `medical_pw`
+
+To run without a database, you can modify `src/main/resources/application.yml` to use an in-memory H2 database or set `spring.jpa.hibernate.ddl-auto=none`.
 
 ## Endpoints
 
