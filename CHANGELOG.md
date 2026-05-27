@@ -34,6 +34,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [`HealthInsuranceController`](src/main/kotlin/com/medical/management/HealthInsuranceController.kt) — CRUD endpoints for health insurance records.
 - [`TreatmentController`](src/main/kotlin/com/medical/management/TreatmentController.kt) — CRUD endpoints for patient treatments.
 
+#### Logging
+
+Every controller uses SLF4J via [`LoggerFactory`](src/main/kotlin/com/medical/management/PatientController.kt:17) with a two-level logging strategy applied consistently across all endpoints:
+
+- **`INFO`** — logged on every incoming request, capturing the HTTP method, path, and (for write operations) the full request payload.
+- **`DEBUG`** — logged after the operation completes, capturing the result count or the generated entity `id`.
+
+The table below lists each endpoint and its exact log messages:
+
+| Controller | Endpoint | `INFO` message | `DEBUG` message |
+|---|---|---|---|
+| [`PatientController`](src/main/kotlin/com/medical/management/PatientController.kt) | `GET /patients` | `GET /patients - fetching all patients` | `GET /patients - returning {n} patient(s)` |
+| [`PatientController`](src/main/kotlin/com/medical/management/PatientController.kt) | `POST /patients` | `POST /patients - creating patient: {payload}` | `POST /patients - patient created with id={id}` |
+| [`ContactController`](src/main/kotlin/com/medical/management/ContactController.kt) | `GET /` | `GET / - root endpoint called` | — |
+| [`ContactController`](src/main/kotlin/com/medical/management/ContactController.kt) | `GET /contacts` | `GET /contacts - fetching all contacts` | `GET /contacts - returning {n} contact(s)` |
+| [`ContactController`](src/main/kotlin/com/medical/management/ContactController.kt) | `POST /contacts` | `POST /contacts - creating contact: {payload}` | `POST /contacts - contact created with id={id}` |
+| [`ContactController`](src/main/kotlin/com/medical/management/ContactController.kt) | `GET /specialists` | `GET /specialists - fetching all specialists` | `GET /specialists - returning {n} specialist(s)` |
+| [`ContactController`](src/main/kotlin/com/medical/management/ContactController.kt) | `POST /specialists` | `POST /specialists - creating specialist: {payload}` | `POST /specialists - specialist created with id={id}` |
+| [`DiagnosisController`](src/main/kotlin/com/medical/management/DiagnosisController.kt) | `GET /diagnoses` | `GET /diagnoses - fetching all diagnoses` | `GET /diagnoses - returning {n} diagnosis/diagnoses` |
+| [`DiagnosisController`](src/main/kotlin/com/medical/management/DiagnosisController.kt) | `POST /diagnoses` | `POST /diagnoses - creating diagnosis: {payload}` | `POST /diagnoses - diagnosis created with id={id}` |
+| [`DrugTherapyController`](src/main/kotlin/com/medical/management/DrugTherapyController.kt) | `GET /drug-therapies` | `GET /drug-therapies - fetching all drug therapies` | `GET /drug-therapies - returning {n} drug therapy/therapies` |
+| [`DrugTherapyController`](src/main/kotlin/com/medical/management/DrugTherapyController.kt) | `POST /drug-therapies` | `POST /drug-therapies - creating drug therapy: {payload}` | `POST /drug-therapies - drug therapy created with id={id}` |
+| [`ExaminationController`](src/main/kotlin/com/medical/management/ExaminationController.kt) | `GET /examinations` | `GET /examinations - fetching all examinations` | `GET /examinations - returning {n} examination(s)` |
+| [`ExaminationController`](src/main/kotlin/com/medical/management/ExaminationController.kt) | `POST /examinations` | `POST /examinations - creating examination: {payload}` | `POST /examinations - examination created with id={id}` |
+| [`HealthDataController`](src/main/kotlin/com/medical/management/HealthDataController.kt) | `GET /health-data` | `GET /health-data - fetching all health data` | `GET /health-data - returning {n} health data record(s)` |
+| [`HealthDataController`](src/main/kotlin/com/medical/management/HealthDataController.kt) | `POST /health-data` | `POST /health-data - creating health data record: {payload}` | `POST /health-data - health data record created with id={id}` |
+| [`HealthDataController`](src/main/kotlin/com/medical/management/HealthDataController.kt) | `GET /health-data/patients/{patientId}/prognosis` | `GET /health-data/patients/{id}/prognosis - calculating prognosis for patientId={id}` | `GET /health-data/patients/{id}/prognosis - prognosis result: {result}` |
+| [`HealthInsuranceController`](src/main/kotlin/com/medical/management/HealthInsuranceController.kt) | `GET /health-insurances` | `GET /health-insurances - fetching all health insurances` | `GET /health-insurances - returning {n} health insurance(s)` |
+| [`HealthInsuranceController`](src/main/kotlin/com/medical/management/HealthInsuranceController.kt) | `POST /health-insurances` | `POST /health-insurances - creating health insurance: {payload}` | `POST /health-insurances - health insurance created with id={id}` |
+| [`TreatmentController`](src/main/kotlin/com/medical/management/TreatmentController.kt) | `GET /treatments` | `GET /treatments - fetching all treatments` | `GET /treatments - returning {n} treatment(s)` |
+| [`TreatmentController`](src/main/kotlin/com/medical/management/TreatmentController.kt) | `POST /treatments` | `POST /treatments - creating treatment: {payload}` | `POST /treatments - treatment created with id={id}` |
+| [`SicknessPrognosisController`](src/main/kotlin/com/medical/management/SicknessPrognosisController.kt) | `GET /patients/{patientId}/prognosis` | `GET /patients/{id}/prognosis - calculating sickness prognosis` | `GET /patients/{id}/prognosis - riskLevel={riskLevel}` |
+
 #### Infrastructure & Testing
 - Spring Boot 3.2.0 application with Kotlin 1.9.20 and Java 21.
 - PostgreSQL persistence via Spring Data JPA.
