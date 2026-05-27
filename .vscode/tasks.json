@@ -83,6 +83,61 @@
           "endsPattern": "^.*BUILD (SUCCESSFUL|FAILED).*$"
         }
       }
+    },
+    {
+      "label": "gradle: coverage (unit tests)",
+      "type": "shell",
+      "command": "./gradlew unitTest jacocoUnitTestReport",
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "gradle: coverage (integration tests)",
+      "type": "shell",
+      "command": "./gradlew integrationTest jacocoIntegrationTestReport",
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "gradle: coverage (combined)",
+      "type": "shell",
+      "command": "./gradlew jacocoCombinedReport",
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "coverage: open unit test report",
+      "type": "shell",
+      "command": "xdg-open build/reports/jacoco/unitTest/html/index.html 2>/dev/null || open build/reports/jacoco/unitTest/html/index.html 2>/dev/null || start build/reports/jacoco/unitTest/html/index.html",
+      "group": "test",
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "coverage: open combined report",
+      "type": "shell",
+      "command": "xdg-open build/reports/jacoco/combined/html/index.html 2>/dev/null || open build/reports/jacoco/combined/html/index.html 2>/dev/null || start build/reports/jacoco/combined/html/index.html",
+      "group": "test",
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      },
+      "problemMatcher": []
     }
   ]
 }

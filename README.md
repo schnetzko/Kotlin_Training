@@ -216,6 +216,64 @@ To run without a database, you can modify `src/main/resources/application.yml` t
 - `GET /treatments`: Retrieve all treatments.
 - `POST /treatments`: Create a new treatment.
 
+## Code Coverage
+
+Code coverage is measured with **[JaCoCo](https://www.jacoco.org/jacoco/)** (version 0.8.11). Three separate HTML + XML reports are generated depending on which tests you run.
+
+### Coverage reports overview
+
+| Gradle task | Tests executed | Report location |
+| --- | --- | --- |
+| `./gradlew unitTest jacocoUnitTestReport` | Unit tests only | `build/reports/jacoco/unitTest/html/index.html` |
+| `./gradlew integrationTest jacocoIntegrationTestReport` | Integration tests only | `build/reports/jacoco/integrationTest/html/index.html` |
+| `./gradlew jacocoCombinedReport` | Unit **+** integration tests | `build/reports/jacoco/combined/html/index.html` |
+
+> **Note:** Running any test task also automatically triggers `jacocoTestReport` (the default JaCoCo report for the standard `test` task), which writes its output to `build/reports/jacoco/test/html/index.html`.
+
+### Generate coverage from the terminal
+
+```bash
+# Unit-test coverage only (fast, no Docker required)
+./gradlew unitTest jacocoUnitTestReport
+
+# Integration-test coverage (requires Docker)
+./gradlew integrationTest jacocoIntegrationTestReport
+
+# Combined coverage from both test suites (requires Docker)
+./gradlew jacocoCombinedReport
+```
+
+### Generate coverage from VS Code
+
+Open the **Terminal → Run Task…** menu (`Ctrl+Shift+P` → *Tasks: Run Task*) and choose one of:
+
+| Task label | What it does |
+| --- | --- |
+| `gradle: coverage (unit tests)` | Runs unit tests and generates the unit-test JaCoCo report |
+| `gradle: coverage (integration tests)` | Runs integration tests and generates the integration-test JaCoCo report |
+| `gradle: coverage (combined)` | Runs both test suites and generates the merged JaCoCo report |
+| `coverage: open unit test report` | Opens the unit-test HTML report in the default browser |
+| `coverage: open combined report` | Opens the combined HTML report in the default browser |
+
+### What is excluded from coverage
+
+The following classes are excluded from all JaCoCo reports to avoid noise:
+
+- `DemoApplicationKt` — Spring Boot entry point, not meaningful to cover.
+- Kotlin-generated synthetic classes (`*$*.class`) — lambda wrappers, companion objects, etc.
+
+### XML reports for CI / SonarQube
+
+Each report task also produces an XML file alongside the HTML output:
+
+| Report | XML path |
+| --- | --- |
+| Unit tests | `build/reports/jacoco/unitTest/jacocoUnitTestReport.xml` |
+| Integration tests | `build/reports/jacoco/integrationTest/jacocoIntegrationTestReport.xml` |
+| Combined | `build/reports/jacoco/combined/jacocoCombinedReport.xml` |
+
+These XML files can be consumed directly by SonarQube, Codecov, or any CI pipeline that understands the JaCoCo XML format.
+
 ## Data Model
 The core entity is the `Patient`, which has relationships with:
 - `HealthInsurance` (One-to-One)

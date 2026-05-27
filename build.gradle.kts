@@ -4,6 +4,7 @@ plugins {
     kotlin("jvm") version "1.9.20"
     kotlin("plugin.spring") version "1.9.20"
     kotlin("plugin.jpa") version "1.9.20"
+    jacoco
 }
 
 group = "com.example"
@@ -38,6 +39,10 @@ dependencies {
     testImplementation("org.testcontainers:junit-jupiter:1.20.4")
 }
 
+jacoco {
+    toolVersion = "0.8.11"
+}
+
 tasks.withType<Test> {
     useJUnitPlatform()
     environment("DOCKER_HOST", "unix:///var/run/docker.sock")
@@ -47,6 +52,8 @@ tasks.withType<Test> {
         "-Dapi.version=1.44",
         "-Ddocker.host=unix:///var/run/docker.sock"
     )
+    // Collect JaCoCo execution data for every test task
+    finalizedBy("jacocoTestReport")
 }
 
 tasks.register<Test>("unitTest") {
@@ -183,6 +190,105 @@ tasks.register<org.springframework.boot.gradle.tasks.run.BootRun>("bootRunDebug"
     classpath = sourceSets["main"].runtimeClasspath
     jvmArgs(
         "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
+    )
+}
+
+// ---------------------------------------------------------------------------
+// JaCoCo coverage reports
+// ---------------------------------------------------------------------------
+
+// Default jacocoTestReport – covers the standard `test` task execution data
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+        html.outputLocation.set(layout.buildDirectory.dir("reports/jacoco/test/html"))
+        xml.outputLocation.set(layout.buildDirectory.file("reports/jacoco/test/jacocoTestReport.xml"))
+    }
+    classDirectories.setFrom(
+        fileTree(layout.buildDirectory.dir("classes/kotlin/main")) {
+            exclude(
+                "**/DemoApplicationKt.class",
+                "**/*\$*.class"          // exclude Kotlin-generated lambdas / companion objects
+            )
+        }
+    )
+    sourceDirectories.setFrom(files("src/main/kotlin"))
+    executionData.setFrom(fileTree(layout.buildDirectory).include("jacoco/test.exec"))
+}
+
+// Coverage report that merges unit-test execution data
+tasks.register<JacocoReport>("jacocoUnitTestReport") {
+    group = "verification"
+    description = "Generates JaCoCo coverage report for unit tests."
+    dependsOn("unitTest")
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+        html.outputLocation.set(layout.buildDirectory.dir("reports/jacoco/unitTest/html"))
+        xml.outputLocation.set(layout.buildDirectory.file("reports/jacoco/unitTest/jacocoUnitTestReport.xml"))
+    }
+    classDirectories.setFrom(
+        fileTree(layout.buildDirectory.dir("classes/kotlin/main")) {
+            exclude(
+                "**/DemoApplicationKt.class",
+                "**/*\$*.class"
+            )
+        }
+    )
+    sourceDirectories.setFrom(files("src/main/kotlin"))
+    executionData.setFrom(fileTree(layout.buildDirectory).include("jacoco/unitTest.exec"))
+}
+
+// Coverage report that merges integration-test execution data
+tasks.register<JacocoReport>("jacocoIntegrationTestReport") {
+    group = "verification"
+    description = "Generates JaCoCo coverage report for integration tests."
+    dependsOn("integrationTest")
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+        html.outputLocation.set(layout.buildDirectory.dir("reports/jacoco/integrationTest/html"))
+        xml.outputLocation.set(layout.buildDirectory.file("reports/jacoco/integrationTest/jacocoIntegrationTestReport.xml"))
+    }
+    classDirectories.setFrom(
+        fileTree(layout.buildDirectory.dir("classes/kotlin/main")) {
+            exclude(
+                "**/DemoApplicationKt.class",
+                "**/*\$*.class"
+            )
+        }
+    )
+    sourceDirectories.setFrom(files("src/main/kotlin"))
+    executionData.setFrom(fileTree(layout.buildDirectory).include("jacoco/integrationTest.exec"))
+}
+
+// Merged report – combines unit + integration execution data into one report
+tasks.register<JacocoReport>("jacocoCombinedReport") {
+    group = "verification"
+    description = "Generates a merged JaCoCo coverage report from unit and integration tests."
+    dependsOn("unitTest", "integrationTest")
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+        html.outputLocation.set(layout.buildDirectory.dir("reports/jacoco/combined/html"))
+        xml.outputLocation.set(layout.buildDirectory.file("reports/jacoco/combined/jacocoCombinedReport.xml"))
+    }
+    classDirectories.setFrom(
+        fileTree(layout.buildDirectory.dir("classes/kotlin/main")) {
+            exclude(
+                "**/DemoApplicationKt.class",
+                "**/*\$*.class"
+            )
+        }
+    )
+    sourceDirectories.setFrom(files("src/main/kotlin"))
+    executionData.setFrom(
+        fileTree(layout.buildDirectory).include(
+            "jacoco/unitTest.exec",
+            "jacoco/integrationTest.exec"
+        )
     )
 }
 
