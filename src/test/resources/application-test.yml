@@ -1,9 +1,9 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5433/medical_data_test
-    driver-class-name: org.postgresql.Driver
-    username: admin
-    password: medical_pw
+    url: jdbc:tc:postgresql:15:///medical_data_test
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+    username: test
+    password: test
   jpa:
     hibernate:
       ddl-auto: create-drop
