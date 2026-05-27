@@ -35,6 +35,54 @@
           "endsPattern": "^.*Started.*in.*seconds.*$"
         }
       }
+    },
+    {
+      "label": "gradle: unitTestDebug",
+      "type": "shell",
+      "command": "./gradlew unitTest --no-daemon -Dorg.gradle.jvmargs=\"-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5006\"",
+      "isBackground": true,
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": {
+        "pattern": {
+          "regexp": "^.*$",
+          "file": 1,
+          "location": 2,
+          "message": 3
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^.*Listening for transport dt_socket.*$",
+          "endsPattern": "^.*BUILD (SUCCESSFUL|FAILED).*$"
+        }
+      }
+    },
+    {
+      "label": "gradle: integrationTestDebug",
+      "type": "shell",
+      "command": "./gradlew integrationTest --no-daemon -Dorg.gradle.jvmargs=\"-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5007\"",
+      "isBackground": true,
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": {
+        "pattern": {
+          "regexp": "^.*$",
+          "file": 1,
+          "location": 2,
+          "message": 3
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^.*Listening for transport dt_socket.*$",
+          "endsPattern": "^.*BUILD (SUCCESSFUL|FAILED).*$"
+        }
+      }
     }
   ]
 }

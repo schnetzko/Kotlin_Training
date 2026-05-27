@@ -130,14 +130,47 @@ The `gradle: classes` pre-launch task compiles the Kotlin sources before the JVM
 
 > **Prerequisite:** An `.env` file must exist in the workspace root if environment variables are required (the launch config references `${workspaceFolder}/.env`).
 
+#### Option 4 — Debug Unit Tests
+
+Runs the unit tests with the JVM suspended until the debugger attaches, so you can set breakpoints inside test code.
+
+1. Open the **Run & Debug** panel.
+2. Select **`Kotlin: Debug Unit Tests`** from the dropdown.
+3. Click **▶ Start Debugging** (or press `F5`).
+
+What happens under the hood:
+- VS Code runs the `gradle: unitTestDebug` pre-launch task, which executes `./gradlew unitTest --no-daemon` with the JDWP agent on port `5006` and `suspend=y`.
+- The JVM pauses before running any tests and waits for the debugger to connect.
+- VS Code attaches the Java debugger to `localhost:5006`.
+- Set breakpoints in any unit test or production class — they will be hit as the test runs.
+
+> **Note:** `suspend=y` means the test JVM will **not** start until the debugger has connected. VS Code handles this automatically when using the compound launch.
+
+#### Option 5 — Debug Integration Tests
+
+Runs the integration tests with the JVM suspended until the debugger attaches. Requires a running Docker daemon (Testcontainers).
+
+1. Open the **Run & Debug** panel.
+2. Select **`Kotlin: Debug Integration Tests`** from the dropdown.
+3. Click **▶ Start Debugging** (or press `F5`).
+
+What happens under the hood:
+- VS Code runs the `gradle: integrationTestDebug` pre-launch task, which executes `./gradlew integrationTest --no-daemon` with the JDWP agent on port `5007` and `suspend=y`.
+- The JVM pauses before running any tests and waits for the debugger to connect.
+- VS Code attaches the Java debugger to `localhost:5007`.
+- Set breakpoints in any integration test or production class — they will be hit as the test runs.
+
+> **Note:** `suspend=y` means the test JVM will **not** start until the debugger has connected. VS Code handles this automatically when using the compound launch.
+
 #### Debug port reference
 
-| Setting | Value |
-| --- | --- |
-| Protocol | JDWP over TCP/IP |
-| Host | `localhost` |
-| Port | `5005` |
-| Suspend on start | `n` (app starts immediately) |
+| Configuration | Port | Suspend on start |
+| --- | --- | --- |
+| `Kotlin: Boot Run + Attach Debugger` (application) | `5005` | `n` (app starts immediately) |
+| `Kotlin: Debug Unit Tests` | `5006` | `y` (waits for debugger) |
+| `Kotlin: Debug Integration Tests` | `5007` | `y` (waits for debugger) |
+
+All configurations use JDWP over TCP/IP on `localhost`.
 
 ### Database Configuration
 The application is configured to connect to a PostgreSQL database with the following settings:

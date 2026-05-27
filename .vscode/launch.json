@@ -26,6 +26,20 @@
       "envFile": "${workspaceFolder}/.env",
       "classPaths": ["${workspaceFolder}/build/classes/kotlin/main"],
       "preLaunchTask": "gradle: classes"
+    },
+    {
+      "type": "java",
+      "request": "attach",
+      "name": "Kotlin: Attach to Unit Tests (5006)",
+      "hostName": "localhost",
+      "port": 5006
+    },
+    {
+      "type": "java",
+      "request": "attach",
+      "name": "Kotlin: Attach to Integration Tests (5007)",
+      "hostName": "localhost",
+      "port": 5007
     }
   ],
   "compounds": [
@@ -33,6 +47,18 @@
       "name": "Kotlin: Boot Run + Attach Debugger",
       "configurations": ["Kotlin: Attach to Spring Boot (5005)"],
       "preLaunchTask": "gradle: bootRunDebug",
+      "stopAll": true
+    },
+    {
+      "name": "Kotlin: Debug Unit Tests",
+      "configurations": ["Kotlin: Attach to Unit Tests (5006)"],
+      "preLaunchTask": "gradle: unitTestDebug",
+      "stopAll": true
+    },
+    {
+      "name": "Kotlin: Debug Integration Tests",
+      "configurations": ["Kotlin: Attach to Integration Tests (5007)"],
+      "preLaunchTask": "gradle: integrationTestDebug",
       "stopAll": true
     }
   ]
