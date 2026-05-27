@@ -4,6 +4,9 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 class ContactController(private val repository: ContactRepository) {
+    @GetMapping("/")
+    fun root() = "Welcome to Medical Management API"
+
     @GetMapping("/contacts")
     fun getContacts() = repository.findByType("CONTACT")
 
