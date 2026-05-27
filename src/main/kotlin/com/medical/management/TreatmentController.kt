@@ -1,5 +1,6 @@
 package com.medical.management
 
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
@@ -13,12 +14,24 @@ import org.springframework.web.bind.annotation.RestController
 class TreatmentController(
     private val repository: TreatmentRepository
 ) {
+    private val logger = LoggerFactory.getLogger(TreatmentController::class.java)
+
     @GetMapping
-    fun getAll() = repository.findAll()
+    fun getAll(): List<Treatment> {
+        logger.info("GET /treatments - fetching all treatments")
+        val treatments = repository.findAll()
+        logger.debug("GET /treatments - returning {} treatment(s)", treatments.size)
+        return treatments
+    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     fun create(
         @RequestBody treatment: Treatment
-    ) = repository.save(treatment)
+    ): Treatment {
+        logger.info("POST /treatments - creating treatment: {}", treatment)
+        val saved = repository.save(treatment)
+        logger.debug("POST /treatments - treatment created with id={}", saved.id)
+        return saved
+    }
 }
