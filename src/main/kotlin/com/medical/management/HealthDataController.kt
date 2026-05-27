@@ -1,5 +1,6 @@
 package com.medical.management
 
+import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -9,5 +10,6 @@ class HealthDataController(private val repository: HealthDataRepository) {
     fun getAll() = repository.findAll()
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     fun create(@RequestBody healthData: HealthData) = repository.save(healthData)
 }

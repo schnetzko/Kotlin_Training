@@ -1,5 +1,6 @@
 package com.medical.management
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
@@ -9,11 +10,13 @@ import jakarta.persistence.ManyToOne
 import java.time.LocalDate
 
 @Entity
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class HealthData(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
     @ManyToOne
     @JoinColumn(name = "patient_id")
+    @JsonIgnoreProperties("examinations", "diagnoses", "treatments", "healthData", "healthInsurance", "allSpecialists")
     val patient: Patient,
     val date: LocalDate,
     val size: Double,

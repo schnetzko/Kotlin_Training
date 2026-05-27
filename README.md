@@ -29,14 +29,36 @@ gradle bootRun
 
 The application will start on port 8080 by default.
 
-## Running Unit Tests
+## Running Tests
 
-### Run All Tests
+The project distinguishes between **unit tests** and **integration tests**. Each can be executed independently, or both can be executed together via the `test` task.
+
+| Task | What it runs | Notes |
+| --- | --- | --- |
+| `./gradlew unitTest` | **Unit tests only** (`*Test.kt`, excluding `*IntegrationTest.kt`) | Fast, no Docker required. Prints a complete overview to stdout with total, passed, failed, skipped counts and total duration. |
+| `./gradlew integrationTest` | **Integration tests only** (`*IntegrationTest.kt`) | Requires Docker (uses Testcontainers with PostgreSQL). Prints a complete overview to stdout. |
+| `./gradlew test` | **All tests** — unit tests **and** integration tests combined | Standard Gradle test task. Requires Docker (because integration tests are included). |
+
+### Run Only Unit Tests (separately)
+Executes **only** the unit tests, excluding integration tests. Prints a complete overview to stdout including a final summary with total, passed, failed, skipped counts and total duration.
+```bash
+./gradlew unitTest
+```
+
+### Run Only Integration Tests (separately)
+Executes **only** the integration tests (using Testcontainers). Prints a complete overview to stdout including a final summary with total, passed, failed, skipped counts and total duration. Requires a running Docker daemon.
+```bash
+./gradlew integrationTest
+```
+
+### Run All Tests (Unit + Integration)
+Executes **both** unit tests and integration tests together. Requires a running Docker daemon (for the integration tests).
 ```bash
 ./gradlew test
 ```
 
 ### Run Tests with Build
+Runs the full build, which includes `check` and therefore executes both unit and integration tests.
 ```bash
 ./gradlew build
 ```
@@ -48,7 +70,7 @@ The application will start on port 8080 by default.
 
 ### Skip Tests During Build
 ```bash
-./gradlew build -x test
+./gradlew build -x test -x integrationTest
 ```
 
 ### Database Configuration

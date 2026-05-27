@@ -1,5 +1,6 @@
 package com.medical.management
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
@@ -17,6 +18,7 @@ enum class DiagnosisType {
 }
 
 @Entity
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class Diagnosis(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
@@ -27,5 +29,6 @@ data class Diagnosis(
     val type: DiagnosisType,
     @ManyToOne
     @JoinColumn(name = "patient_id")
+    @JsonIgnoreProperties("examinations", "diagnoses", "treatments", "healthData", "healthInsurance", "allSpecialists")
     val patient: Patient
 )

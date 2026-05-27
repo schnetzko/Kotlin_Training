@@ -1,5 +1,6 @@
 package com.medical.management
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
@@ -8,6 +9,7 @@ import jakarta.persistence.OneToMany
 import jakarta.persistence.OneToOne
 
 @Entity
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class Patient(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
@@ -21,18 +23,23 @@ data class Patient(
     val date_of_birth: java.time.LocalDate? = null,
 
     @OneToOne(mappedBy = "patient")
+    @JsonIgnoreProperties("patient")
     val healthInsurance: HealthInsurance? = null,
 
     @OneToMany(mappedBy = "patient")
+    @JsonIgnoreProperties("patient")
     val healthData: List<HealthData> = mutableListOf(),
 
     @OneToMany(mappedBy = "patient")
+    @JsonIgnoreProperties("patient")
     val examinations: List<Examination> = mutableListOf(),
 
     @OneToMany(mappedBy = "patient")
+    @JsonIgnoreProperties("patient")
     val diagnoses: List<Diagnosis> = mutableListOf(),
 
     @OneToMany(mappedBy = "patient")
+    @JsonIgnoreProperties("patient")
     val treatments: List<Treatment> = mutableListOf()
 ) {
     val allSpecialists: List<String>
