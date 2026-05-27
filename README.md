@@ -29,6 +29,28 @@ gradle bootRun
 
 The application will start on port 8080 by default.
 
+## Running Unit Tests
+
+### Run All Tests
+```bash
+./gradlew test
+```
+
+### Run Tests with Build
+```bash
+./gradlew build
+```
+
+### Run Specific Test Class
+```bash
+./gradlew test --tests "com.medical.management.PatientControllerTest"
+```
+
+### Skip Tests During Build
+```bash
+./gradlew build -x test
+```
+
 ### Database Configuration
 The application is configured to connect to a PostgreSQL database with the following settings:
 - **URL**: `jdbc:postgresql://localhost:5432/medical_data`
