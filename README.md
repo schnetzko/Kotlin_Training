@@ -274,6 +274,76 @@ Each report task also produces an XML file alongside the HTML output:
 
 These XML files can be consumed directly by SonarQube, Codecov, or any CI pipeline that understands the JaCoCo XML format.
 
+## Linting
+
+Code style is enforced with **[ktlint](https://pinterest.github.io/ktlint/)** (version 1.3.1) via the [`org.jlleitschuh.gradle.ktlint`](https://github.com/JLLeitschuh/ktlint-gradle) Gradle plugin (version 12.1.1).
+
+ktlint follows the [Kotlin coding conventions](https://kotlinlang.org/docs/coding-conventions.html) and the [Android Kotlin style guide](https://developer.android.com/kotlin/style-guide) out of the box. Project-specific overrides are declared in [`.editorconfig`](.editorconfig).
+
+### Check for violations (read-only)
+
+Scans all Kotlin sources and prints every style violation. Exits with a non-zero code if any violation is found — suitable for CI.
+
+```bash
+./gradlew ktlintCheck
+```
+
+### Auto-format sources
+
+Rewrites all Kotlin sources in-place to comply with ktlint rules.
+
+```bash
+./gradlew ktlintFormat
+```
+
+> **Tip:** Run `ktlintFormat` before committing to avoid `ktlintCheck` failures in CI.
+
+### Linting in the build lifecycle
+
+`ktlintCheck` is wired into the `check` task, so it runs automatically as part of:
+
+```bash
+./gradlew check   # linting + tests + coverage
+./gradlew build   # full build including check
+```
+
+To build without linting (e.g. during rapid iteration):
+
+```bash
+./gradlew build -x ktlintCheck
+```
+
+### Linting from VS Code
+
+Open the **Terminal → Run Task…** menu (`Ctrl+Shift+P` → *Tasks: Run Task*) and choose:
+
+| Task label | What it does |
+| --- | --- |
+| `gradle: ktlintCheck` | Checks all Kotlin sources for style violations; violations appear in the **Problems** panel |
+| `gradle: ktlintFormat` | Auto-formats all Kotlin sources in-place |
+
+### Reports
+
+After running `ktlintCheck`, a Checkstyle-compatible XML report is written to:
+
+```
+build/reports/ktlint/
+```
+
+This can be consumed by CI tools (e.g. GitHub Actions, SonarQube) that understand the Checkstyle XML format.
+
+### Style rules
+
+All rules are configured in [`.editorconfig`](.editorconfig). Key settings:
+
+| Rule | Value |
+| --- | --- |
+| Indent style | spaces |
+| Indent size | 4 |
+| Max line length | 120 |
+| Wildcard imports | disabled |
+| Trailing commas | disabled |
+
 ## Data Model
 The core entity is the `Patient`, which has relationships with:
 - `HealthInsurance` (One-to-One)

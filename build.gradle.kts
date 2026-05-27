@@ -5,6 +5,7 @@ plugins {
     kotlin("plugin.spring") version "1.9.20"
     kotlin("plugin.jpa") version "1.9.20"
     jacoco
+    id("org.jlleitschuh.gradle.ktlint") version "12.1.1"
 }
 
 group = "com.example"
@@ -88,28 +89,33 @@ tasks.register<Test>("unitTest") {
     }
 
     // Print a complete summary overview after all tests have executed
-    afterSuite(KotlinClosure2({ desc: org.gradle.api.tasks.testing.TestDescriptor, result: org.gradle.api.tasks.testing.TestResult ->
-        if (desc.parent == null) { // root suite only
-            val total = result.testCount
-            val passed = result.successfulTestCount
-            val failed = result.failedTestCount
-            val skipped = result.skippedTestCount
-            val durationMs = result.endTime - result.startTime
+    afterSuite(
+        KotlinClosure2({
+                desc: org.gradle.api.tasks.testing.TestDescriptor,
+                result: org.gradle.api.tasks.testing.TestResult
+            ->
+            if (desc.parent == null) { // root suite only
+                val total = result.testCount
+                val passed = result.successfulTestCount
+                val failed = result.failedTestCount
+                val skipped = result.skippedTestCount
+                val durationMs = result.endTime - result.startTime
 
-            val separator = "=".repeat(80)
-            println()
-            println(separator)
-            println("                          UNIT TEST OVERVIEW")
-            println(separator)
-            println("Result:        ${result.resultType}")
-            println("Total tests:   $total")
-            println("Passed:        $passed")
-            println("Failed:        $failed")
-            println("Skipped:       $skipped")
-            println("Duration:      ${durationMs} ms")
-            println(separator)
-        }
-    }))
+                val separator = "=".repeat(80)
+                println()
+                println(separator)
+                println("                          UNIT TEST OVERVIEW")
+                println(separator)
+                println("Result:        ${result.resultType}")
+                println("Total tests:   $total")
+                println("Passed:        $passed")
+                println("Failed:        $failed")
+                println("Skipped:       $skipped")
+                println("Duration:      $durationMs ms")
+                println(separator)
+            }
+        })
+    )
 }
 
 tasks.register<Test>("integrationTest") {
@@ -158,28 +164,33 @@ tasks.register<Test>("integrationTest") {
     }
 
     // Print a complete summary overview after all tests have executed
-    afterSuite(KotlinClosure2({ desc: org.gradle.api.tasks.testing.TestDescriptor, result: org.gradle.api.tasks.testing.TestResult ->
-        if (desc.parent == null) { // root suite only
-            val total = result.testCount
-            val passed = result.successfulTestCount
-            val failed = result.failedTestCount
-            val skipped = result.skippedTestCount
-            val durationMs = result.endTime - result.startTime
+    afterSuite(
+        KotlinClosure2({
+                desc: org.gradle.api.tasks.testing.TestDescriptor,
+                result: org.gradle.api.tasks.testing.TestResult
+            ->
+            if (desc.parent == null) { // root suite only
+                val total = result.testCount
+                val passed = result.successfulTestCount
+                val failed = result.failedTestCount
+                val skipped = result.skippedTestCount
+                val durationMs = result.endTime - result.startTime
 
-            val separator = "=".repeat(80)
-            println()
-            println(separator)
-            println("                       INTEGRATION TEST OVERVIEW")
-            println(separator)
-            println("Result:        ${result.resultType}")
-            println("Total tests:   $total")
-            println("Passed:        $passed")
-            println("Failed:        $failed")
-            println("Skipped:       $skipped")
-            println("Duration:      ${durationMs} ms")
-            println(separator)
-        }
-    }))
+                val separator = "=".repeat(80)
+                println()
+                println(separator)
+                println("                       INTEGRATION TEST OVERVIEW")
+                println(separator)
+                println("Result:        ${result.resultType}")
+                println("Total tests:   $total")
+                println("Passed:        $passed")
+                println("Failed:        $failed")
+                println("Skipped:       $skipped")
+                println("Duration:      $durationMs ms")
+                println(separator)
+            }
+        })
+    )
 }
 
 // Starts the application with JDWP debug agent on port 5005 (suspend=n so the app boots immediately)
@@ -210,7 +221,7 @@ tasks.jacocoTestReport {
         fileTree(layout.buildDirectory.dir("classes/kotlin/main")) {
             exclude(
                 "**/DemoApplicationKt.class",
-                "**/*\$*.class"          // exclude Kotlin-generated lambdas / companion objects
+                "**/*\$*.class" // exclude Kotlin-generated lambdas / companion objects
             )
         }
     )
@@ -250,7 +261,9 @@ tasks.register<JacocoReport>("jacocoIntegrationTestReport") {
         xml.required.set(true)
         html.required.set(true)
         html.outputLocation.set(layout.buildDirectory.dir("reports/jacoco/integrationTest/html"))
-        xml.outputLocation.set(layout.buildDirectory.file("reports/jacoco/integrationTest/jacocoIntegrationTestReport.xml"))
+        xml.outputLocation.set(
+            layout.buildDirectory.file("reports/jacoco/integrationTest/jacocoIntegrationTestReport.xml")
+        )
     }
     classDirectories.setFrom(
         fileTree(layout.buildDirectory.dir("classes/kotlin/main")) {
@@ -295,4 +308,29 @@ tasks.register<JacocoReport>("jacocoCombinedReport") {
 // Make `check` depend on the integration tests so a standard verification run covers both
 tasks.named("check") {
     dependsOn("integrationTest")
+}
+
+// ---------------------------------------------------------------------------
+// ktlint – Kotlin linting & formatting
+// ---------------------------------------------------------------------------
+
+ktlint {
+    version.set("1.3.1")
+    android.set(false)
+    outputToConsole.set(true)
+    coloredOutput.set(true)
+    reporters {
+        reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.PLAIN)
+        reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.CHECKSTYLE)
+    }
+    filter {
+        exclude("**/generated/**")
+        exclude("**/test/**")
+    }
+}
+
+// ktlintCheck runs as part of `check` (already wired by the plugin);
+// make it explicit so the dependency is visible in the task graph.
+tasks.named("check") {
+    dependsOn("ktlintCheck")
 }

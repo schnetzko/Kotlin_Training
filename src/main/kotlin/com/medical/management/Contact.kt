@@ -19,5 +19,6 @@ data class Contact(
     val country: String,
     val phone: String,
     val email: String,
-    val type: String // "CONTACT" or "SPECIALIST"
+    // "CONTACT" or "SPECIALIST"
+    val type: String,
 )

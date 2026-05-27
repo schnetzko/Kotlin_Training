@@ -15,7 +15,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 
 @WebMvcTest(DrugTherapyController::class)
 class DrugTherapyControllerTest {
-
     @Autowired
     lateinit var mockMvc: MockMvc
 
@@ -25,23 +24,25 @@ class DrugTherapyControllerTest {
     @MockBean
     lateinit var repository: DrugTherapyRepository
 
-    private val drugTherapy1 = DrugTherapy(
-        id = 1L,
-        drugName = "Paracetamol",
-        description = "Pain reliever",
-        activeIngredient = "Acetaminophen",
-        dosage = "500mg",
-        frequence = "3 times a day"
-    )
+    private val drugTherapy1 =
+        DrugTherapy(
+            id = 1L,
+            drugName = "Paracetamol",
+            description = "Pain reliever",
+            activeIngredient = "Acetaminophen",
+            dosage = "500mg",
+            frequence = "3 times a day"
+        )
 
-    private val drugTherapy2 = DrugTherapy(
-        id = 2L,
-        drugName = "Ibuprofen",
-        description = "Anti-inflammatory",
-        activeIngredient = "Ibuprofen",
-        dosage = "400mg",
-        frequence = "2 times a day"
-    )
+    private val drugTherapy2 =
+        DrugTherapy(
+            id = 2L,
+            drugName = "Ibuprofen",
+            description = "Anti-inflammatory",
+            activeIngredient = "Ibuprofen",
+            dosage = "400mg",
+            frequence = "2 times a day"
+        )
 
     @BeforeEach
     fun setup() {
@@ -52,7 +53,8 @@ class DrugTherapyControllerTest {
     fun `GET drug-therapies should return all drug therapies`() {
         `when`(repository.findAll()).thenReturn(listOf(drugTherapy1, drugTherapy2))
 
-        mockMvc.perform(get("/drug-therapies"))
+        mockMvc
+            .perform(get("/drug-therapies"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.[0].drugName").value("Paracetamol"))
             .andExpect(jsonPath("$.[1].drugName").value("Ibuprofen"))
@@ -64,7 +66,8 @@ class DrugTherapyControllerTest {
     fun `GET drug-therapies should return empty list when no drug therapies`() {
         `when`(repository.findAll()).thenReturn(emptyList())
 
-        mockMvc.perform(get("/drug-therapies"))
+        mockMvc
+            .perform(get("/drug-therapies"))
             .andExpect(status().isOk())
             .andExpect(content().json(objectMapper.writeValueAsString(emptyList<Any>())))
 
@@ -73,23 +76,26 @@ class DrugTherapyControllerTest {
 
     @Test
     fun `POST drug-therapies should create drug therapy`() {
-        val newDrugTherapy = DrugTherapy(
-            drugName = "New Drug",
-            description = "New description",
-            activeIngredient = "New Ingredient",
-            dosage = "200mg",
-            frequence = "Once daily"
-        )
+        val newDrugTherapy =
+            DrugTherapy(
+                drugName = "New Drug",
+                description = "New description",
+                activeIngredient = "New Ingredient",
+                dosage = "200mg",
+                frequence = "Once daily"
+            )
 
         `when`(repository.save(any(DrugTherapy::class.java))).thenAnswer { invocation ->
             val saved = invocation.arguments[0] as DrugTherapy
             saved.copy(id = 100L)
         }
 
-        mockMvc.perform(post("/drug-therapies")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(newDrugTherapy)))
-            .andExpect(status().isCreated())
+        mockMvc
+            .perform(
+                post("/drug-therapies")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(newDrugTherapy))
+            ).andExpect(status().isCreated())
             .andExpect(jsonPath("$.drugName").value("New Drug"))
             .andExpect(jsonPath("$.dosage").value("200mg"))
 

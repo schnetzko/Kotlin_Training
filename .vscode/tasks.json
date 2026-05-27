@@ -138,6 +138,49 @@
         "panel": "shared"
       },
       "problemMatcher": []
+    },
+    {
+      "label": "gradle: ktlintCheck",
+      "detail": "Check all Kotlin sources for style violations (read-only, fails on violations).",
+      "type": "shell",
+      "command": "./gradlew ktlintCheck",
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": [
+        {
+          "owner": "ktlint",
+          "fileLocation": ["relative", "${workspaceFolder}"],
+          "pattern": {
+            "regexp": "^(.+):(\\d+):(\\d+): (\\w+): (.+)$",
+            "file": 1,
+            "line": 2,
+            "column": 3,
+            "severity": 4,
+            "message": 5
+          }
+        }
+      ]
+    },
+    {
+      "label": "gradle: ktlintFormat",
+      "detail": "Auto-format all Kotlin sources to comply with ktlint rules.",
+      "type": "shell",
+      "command": "./gradlew ktlintFormat",
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
     }
   ]
 }

@@ -26,7 +26,6 @@ import java.time.LocalDate
 @ActiveProfiles("test")
 @Testcontainers
 class PatientIntegrationTest {
-
     @Autowired
     lateinit var mockMvc: MockMvc
 
@@ -37,12 +36,12 @@ class PatientIntegrationTest {
     lateinit var patientRepository: PatientRepository
 
     companion object {
-
         @Container
-        val postgres: PostgreSQLContainer<*> = PostgreSQLContainer("postgres:16-alpine")
-            .withDatabaseName("medical_test")
-            .withUsername("test")
-            .withPassword("test")
+        val postgres: PostgreSQLContainer<*> =
+            PostgreSQLContainer("postgres:16-alpine")
+                .withDatabaseName("medical_test")
+                .withUsername("test")
+                .withPassword("test")
 
         @JvmStatic
         @DynamicPropertySource
@@ -68,24 +67,26 @@ class PatientIntegrationTest {
     @Test
     fun `POST patient creates patient and GET patients returns it`() {
         // Arrange – build the patient payload (no id, let the DB assign it)
-        val newPatient = Patient(
-            first_name = "Anna",
-            second_name = "Müller",
-            mailing_address = "Hauptstraße 1",
-            zip_code = "10115",
-            city = "Berlin",
-            country = "Germany",
-            phone = "+49 30 123456",
-            date_of_birth = LocalDate.of(1985, 3, 22),
-            job_category = "Doctor"
-        )
+        val newPatient =
+            Patient(
+                first_name = "Anna",
+                second_name = "Müller",
+                mailing_address = "Hauptstraße 1",
+                zip_code = "10115",
+                city = "Berlin",
+                country = "Germany",
+                phone = "+49 30 123456",
+                date_of_birth = LocalDate.of(1985, 3, 22),
+                job_category = "Doctor"
+            )
 
         // Act – POST /patients
-        val postResult = mockMvc.perform(
-            post("/patients")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(newPatient))
-        )
+        val postResult =
+            mockMvc.perform(
+                post("/patients")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(newPatient))
+            )
 
         // Assert – 201 Created and the returned body matches the input
         postResult
