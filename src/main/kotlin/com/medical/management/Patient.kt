@@ -21,6 +21,7 @@ data class Patient(
     val country: String,
     val phone: String? = null,
     val date_of_birth: java.time.LocalDate? = null,
+    val job_category: String? = null,
 
     @OneToOne(mappedBy = "patient")
     @JsonIgnoreProperties("patient")

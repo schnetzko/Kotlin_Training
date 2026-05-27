@@ -76,7 +76,8 @@ class PatientIntegrationTest {
             city = "Berlin",
             country = "Germany",
             phone = "+49 30 123456",
-            date_of_birth = LocalDate.of(1985, 3, 22)
+            date_of_birth = LocalDate.of(1985, 3, 22),
+            job_category = "Doctor"
         )
 
         // Act – POST /patients
@@ -95,6 +96,7 @@ class PatientIntegrationTest {
             .andExpect(jsonPath("$.city").value("Berlin"))
             .andExpect(jsonPath("$.country").value("Germany"))
             .andExpect(jsonPath("$.date_of_birth").value("1985-03-22"))
+            .andExpect(jsonPath("$.job_category").value("Doctor"))
 
         // Act – GET /patients
         val getResult = mockMvc.perform(get("/patients"))

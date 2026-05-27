@@ -31,7 +31,8 @@ class PatientControllerTest {
         first_name = "John",
         second_name = "Doe",
         country = "Germany",
-        date_of_birth = LocalDate.of(1990, 5, 15)
+        date_of_birth = LocalDate.of(1990, 5, 15),
+        job_category = "Engineer"
     )
 
     private val patient2 = Patient(
@@ -39,7 +40,8 @@ class PatientControllerTest {
         first_name = "Jane",
         second_name = "Smith",
         country = "Austria",
-        date_of_birth = LocalDate.of(1985, 10, 20)
+        date_of_birth = LocalDate.of(1985, 10, 20),
+        job_category = "Teacher"
     )
 
     @BeforeEach
