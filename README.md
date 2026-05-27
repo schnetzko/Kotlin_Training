@@ -1,353 +1,121 @@
 # Medical Management Backend
 
-This project is a RESTful API built with Kotlin and Spring Boot.
+A RESTful API built with Kotlin and Spring Boot.
 
-> **Note:** This is a prototype project for demonstration purposes. It is not production-ready and may lack proper error handling, security measures, and other production considerations.
+> **Note:** Prototype for demonstration purposes — not production-ready.
 
 ## Tech Stack
-- **Language**: Kotlin 1.9.20
-- **Framework**: Spring Boot 3.2.0
-- **Build Tool**: Gradle
-- **Java Version**: 21
+
+| | |
+|---|---|
+| Language | Kotlin 1.9.20 |
+| Framework | Spring Boot 3.2.0 |
+| Build Tool | Gradle |
+| Java Version | 21 |
 
 ## Prerequisites
-- Java 21 or higher
-- Gradle (or use the included Gradle wrapper)
-- PostgreSQL database (for full functionality)
-- Docker (required for integration tests — Testcontainers spins up a real PostgreSQL container automatically)
+
+- Java 21+
+- Docker (required for integration tests via Testcontainers)
+- PostgreSQL (for running the app locally)
 
 ## Running the Application
 
-### Using Gradle Wrapper
 ```bash
-./gradlew bootRun
+./gradlew bootRun   # via Gradle wrapper (recommended)
+gradle bootRun      # via system Gradle
 ```
 
-### Using Gradle
-```bash
-gradle bootRun
-```
-
-The application will start on port 8080 by default.
+Default port: `8080`. Database config: `jdbc:postgresql://localhost:5432/medical_data` (user: `admin`, password: `medical_pw`).
 
 ## Running Tests
 
-The project distinguishes between **unit tests** and **integration tests**. Each can be executed independently, or both can be executed together via the `test` task.
+Integration tests (`*IntegrationTest.kt`) use **Testcontainers** to spin up a real `postgres:16-alpine` container automatically — no manual setup needed. Schema is created/dropped via `spring.jpa.hibernate.ddl-auto: create-drop` (see [`application-test.yml`](src/test/resources/application-test.yml)).
 
-### Integration Test Strategy
+| Task | What it runs | Docker required |
+|---|---|---|
+| `./gradlew unitTest` | Unit tests only (`*Test.kt`, excluding `*IntegrationTest.kt`) | No |
+| `./gradlew integrationTest` | Integration tests only (`*IntegrationTest.kt`) | Yes |
+| `./gradlew test` | All tests (unit + integration) | Yes |
+| `./gradlew build` | Full build including all tests and linting | Yes |
 
-Integration tests (files matching `*IntegrationTest.kt`) use **[Testcontainers](https://testcontainers.com/)** to spin up a real PostgreSQL container for every test run. The lifecycle is fully automatic:
-
-1. **Container start** — `@BeforeAll` starts a `postgres:16-alpine` container before any test in the class runs.
-2. **Dynamic wiring** — `@DynamicPropertySource` overrides `spring.datasource.*` with the container's actual JDBC URL, username, and password, so no manual configuration is needed.
-3. **Schema creation** — `spring.jpa.hibernate.ddl-auto: create-drop` (from `application-test.yml`) creates all tables at context startup and drops them on shutdown.
-4. **Test execution** — each test method POSTs data through the full Spring MVC stack via `MockMvc` (dispatched in-process, not over a real TCP socket) and verifies the response as well as subsequent GET results against the live database.
-5. **Container stop** — `@AfterAll` stops and removes the container after all tests in the class have finished.
-
-> **`PatientIntegrationTest`** is the reference integration test. It POSTs a single patient via `POST /patients`, asserts the `201 Created` response body, then calls `GET /patients` and verifies the patient is persisted and returned correctly.
-
-| Task | What it runs | Notes |
-| --- | --- | --- |
-| `./gradlew unitTest` | **Unit tests only** (`*Test.kt`, excluding `*IntegrationTest.kt`) | Fast, no Docker required. Prints a complete overview to stdout with total, passed, failed, skipped counts and total duration. |
-| `./gradlew integrationTest` | **Integration tests only** (`*IntegrationTest.kt`) | Requires Docker (uses Testcontainers with PostgreSQL). Prints a complete overview to stdout. |
-| `./gradlew test` | **All tests** — unit tests **and** integration tests combined | Standard Gradle test task. Requires Docker (because integration tests are included). |
-
-### Run Only Unit Tests (separately)
-Executes **only** the unit tests, excluding integration tests. Prints a complete overview to stdout including a final summary with total, passed, failed, skipped counts and total duration.
 ```bash
-./gradlew unitTest
+./gradlew unitTest                                                          # unit tests only
+./gradlew integrationTest                                                   # integration tests only
+./gradlew test                                                              # all tests
+./gradlew test --tests "com.medical.management.PatientControllerTest"       # specific class
+./gradlew build -x test -x integrationTest                                  # skip all tests
 ```
 
-### Run Only Integration Tests (separately)
-Executes **only** the integration tests (using Testcontainers). Prints a complete overview to stdout including a final summary with total, passed, failed, skipped counts and total duration. Requires a running Docker daemon.
-```bash
-./gradlew integrationTest
-```
+## Debugging in VS Code
 
-### Run All Tests (Unit + Integration)
-Executes **both** unit tests and integration tests together. Requires a running Docker daemon (for the integration tests).
-```bash
-./gradlew test
-```
+The project ships with pre-configured launch configs ([`.vscode/launch.json`](.vscode/launch.json)) and tasks ([`.vscode/tasks.json`](.vscode/tasks.json)).
 
-### Run Tests with Build
-Runs the full build, which includes `check` and therefore executes both unit and integration tests.
-```bash
-./gradlew build
-```
+Open **Run & Debug** (`Ctrl+Shift+D`) and select a configuration:
 
-### Run Specific Test Class
-```bash
-./gradlew test --tests "com.medical.management.PatientControllerTest"
-```
+| Configuration | Description | Port | Suspend |
+|---|---|---|---|
+| `Kotlin: Boot Run + Attach Debugger` *(recommended)* | Starts app in debug mode and auto-attaches | `5005` | `n` |
+| `Kotlin: Attach to Spring Boot (5005)` | Attaches to an already-running `./gradlew bootRunDebug` instance | `5005` | `n` |
+| `Kotlin: Run DemoApplication (Java debugger)` | Compiles then launches via VS Code Java debugger | — | `n` |
+| `Kotlin: Debug Unit Tests` | Runs unit tests suspended until debugger connects | `5006` | `y` |
+| `Kotlin: Debug Integration Tests` | Runs integration tests suspended until debugger connects (requires Docker) | `5007` | `y` |
 
-### Skip Tests During Build
-```bash
-./gradlew build -x test -x integrationTest
-```
-
-## Dev Environment
-
-### Debugging in VS Code
-
-The project ships with pre-configured VS Code launch configurations ([`.vscode/launch.json`](.vscode/launch.json)) and tasks ([`.vscode/tasks.json`](.vscode/tasks.json)) so you can attach a debugger without any manual setup.
-
-#### Option 1 — Compound: Boot Run + Attach Debugger (recommended)
-
-This is the easiest way to debug. A single VS Code launch starts the application in debug mode **and** attaches the debugger automatically.
-
-1. Open the **Run & Debug** panel (`Ctrl+Shift+D` / `⌘+Shift+D`).
-2. Select **`Kotlin: Boot Run + Attach Debugger`** from the dropdown.
-3. Click **▶ Start Debugging** (or press `F5`).
-
-What happens under the hood:
-- VS Code runs the `gradle: bootRunDebug` pre-launch task, which executes `./gradlew bootRunDebug`.
-- The Gradle task ([`build.gradle.kts`](build.gradle.kts:179)) starts Spring Boot with the JDWP agent: `-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005`.
-- Once the app prints `Started … in … seconds`, VS Code attaches the Java debugger to `localhost:5005`.
-- Set breakpoints anywhere in the source — they will be hit on the next matching request.
-
-> **Note:** `suspend=n` means the application boots immediately without waiting for the debugger to connect, so the app is usable even if you haven't attached yet.
-
-#### Option 2 — Attach manually to a running instance
-
-If you already started the application with `./gradlew bootRunDebug` from a terminal:
-
-1. Open the **Run & Debug** panel.
-2. Select **`Kotlin: Attach to Spring Boot (5005)`**.
-3. Click **▶ Start Debugging** (or press `F5`).
-
-The debugger attaches to the JDWP agent already listening on port `5005`.
-
-#### Option 3 — Java debugger launch (compile & run)
-
-This configuration compiles the project first and then launches the application directly through the VS Code Java debugger (no separate terminal needed):
-
-1. Open the **Run & Debug** panel.
-2. Select **`Kotlin: Run DemoApplication (Java debugger)`**.
-3. Click **▶ Start Debugging** (or press `F5`).
-
-The `gradle: classes` pre-launch task compiles the Kotlin sources before the JVM is started. The active Spring profile is set to `default` via `-Dspring.profiles.active=default`.
-
-> **Prerequisite:** An `.env` file must exist in the workspace root if environment variables are required (the launch config references `${workspaceFolder}/.env`).
-
-#### Option 4 — Debug Unit Tests
-
-Runs the unit tests with the JVM suspended until the debugger attaches, so you can set breakpoints inside test code.
-
-1. Open the **Run & Debug** panel.
-2. Select **`Kotlin: Debug Unit Tests`** from the dropdown.
-3. Click **▶ Start Debugging** (or press `F5`).
-
-What happens under the hood:
-- VS Code runs the `gradle: unitTestDebug` pre-launch task, which executes `./gradlew unitTest --no-daemon` with the JDWP agent on port `5006` and `suspend=y`.
-- The JVM pauses before running any tests and waits for the debugger to connect.
-- VS Code attaches the Java debugger to `localhost:5006`.
-- Set breakpoints in any unit test or production class — they will be hit as the test runs.
-
-> **Note:** `suspend=y` means the test JVM will **not** start until the debugger has connected. VS Code handles this automatically when using the compound launch.
-
-#### Option 5 — Debug Integration Tests
-
-Runs the integration tests with the JVM suspended until the debugger attaches. Requires a running Docker daemon (Testcontainers).
-
-1. Open the **Run & Debug** panel.
-2. Select **`Kotlin: Debug Integration Tests`** from the dropdown.
-3. Click **▶ Start Debugging** (or press `F5`).
-
-What happens under the hood:
-- VS Code runs the `gradle: integrationTestDebug` pre-launch task, which executes `./gradlew integrationTest --no-daemon` with the JDWP agent on port `5007` and `suspend=y`.
-- The JVM pauses before running any tests and waits for the debugger to connect.
-- VS Code attaches the Java debugger to `localhost:5007`.
-- Set breakpoints in any integration test or production class — they will be hit as the test runs.
-
-> **Note:** `suspend=y` means the test JVM will **not** start until the debugger has connected. VS Code handles this automatically when using the compound launch.
-
-#### Debug port reference
-
-| Configuration | Port | Suspend on start |
-| --- | --- | --- |
-| `Kotlin: Boot Run + Attach Debugger` (application) | `5005` | `n` (app starts immediately) |
-| `Kotlin: Debug Unit Tests` | `5006` | `y` (waits for debugger) |
-| `Kotlin: Debug Integration Tests` | `5007` | `y` (waits for debugger) |
-
-All configurations use JDWP over TCP/IP on `localhost`.
-
-### Database Configuration
-The application is configured to connect to a PostgreSQL database with the following settings:
-- **URL**: `jdbc:postgresql://localhost:5432/medical_data`
-- **Username**: `admin`
-- **Password**: `medical_pw`
-
-To run without a database, you can modify `src/main/resources/application.yml` to use an in-memory H2 database or set `spring.jpa.hibernate.ddl-auto=none`.
+> **Option 3 prerequisite:** An `.env` file must exist in the workspace root if environment variables are required.
 
 ## Endpoints
 
-### Patients
-- `GET /patients`: Retrieve all patients.
-- `POST /patients`: Create a new patient.
-
-### Contacts
-- `GET /contacts`: Retrieve all contacts.
-- `POST /contacts`: Create a new contact.
-- `GET /specialists`: Retrieve all specialists.
-- `POST /specialists`: Create a new specialist.
-
-### Diagnoses
-- `GET /diagnoses`: Retrieve all diagnoses.
-- `POST /diagnoses`: Create a new diagnosis.
-
-### Drug Therapies
-- `GET /drug-therapies`: Retrieve all drug therapies.
-- `POST /drug-therapies`: Create a new drug therapy.
-
-### Examinations
-- `GET /examinations`: Retrieve all examinations.
-- `POST /examinations`: Create a new examination.
-
-### Health Data
-- `GET /health-data`: Retrieve all health data.
-- `POST /health-data`: Create new health data.
-
-### Health Insurances
-- `GET /health-insurances`: Retrieve all health insurances.
-- `POST /health-insurances`: Create a new health insurance.
-
-### Treatments
-- `GET /treatments`: Retrieve all treatments.
-- `POST /treatments`: Create a new treatment.
+| Resource | GET | POST |
+|---|---|---|
+| Patients | `GET /patients` | `POST /patients` |
+| Contacts | `GET /contacts`, `GET /specialists` | `POST /contacts`, `POST /specialists` |
+| Diagnoses | `GET /diagnoses` | `POST /diagnoses` |
+| Drug Therapies | `GET /drug-therapies` | `POST /drug-therapies` |
+| Examinations | `GET /examinations` | `POST /examinations` |
+| Health Data | `GET /health-data` | `POST /health-data` |
+| Health Insurances | `GET /health-insurances` | `POST /health-insurances` |
+| Treatments | `GET /treatments` | `POST /treatments` |
 
 ## Code Coverage
 
-Code coverage is measured with **[JaCoCo](https://www.jacoco.org/jacoco/)** (version 0.8.11). Three separate HTML + XML reports are generated depending on which tests you run.
+Coverage is measured with **[JaCoCo](https://www.jacoco.org/jacoco/)** 0.8.11. Three separate HTML + XML reports are generated:
 
-### Coverage reports overview
+| Task | Tests | Report location |
+|---|---|---|
+| `./gradlew unitTest jacocoUnitTestReport` | Unit only | `build/reports/jacoco/unitTest/html/index.html` |
+| `./gradlew integrationTest jacocoIntegrationTestReport` | Integration only | `build/reports/jacoco/integrationTest/html/index.html` |
+| `./gradlew jacocoCombinedReport` | Unit + integration | `build/reports/jacoco/combined/html/index.html` |
 
-| Gradle task | Tests executed | Report location |
-| --- | --- | --- |
-| `./gradlew unitTest jacocoUnitTestReport` | Unit tests only | `build/reports/jacoco/unitTest/html/index.html` |
-| `./gradlew integrationTest jacocoIntegrationTestReport` | Integration tests only | `build/reports/jacoco/integrationTest/html/index.html` |
-| `./gradlew jacocoCombinedReport` | Unit **+** integration tests | `build/reports/jacoco/combined/html/index.html` |
+XML reports (same paths, `.xml` extension) are compatible with SonarQube, Codecov, and standard CI pipelines.
 
-> **Note:** Running any test task also automatically triggers `jacocoTestReport` (the default JaCoCo report for the standard `test` task), which writes its output to `build/reports/jacoco/test/html/index.html`.
+**Excluded from coverage:** `DemoApplicationKt` (entry point) and Kotlin synthetic classes (`*$*.class`).
 
-### Generate coverage from the terminal
-
-```bash
-# Unit-test coverage only (fast, no Docker required)
-./gradlew unitTest jacocoUnitTestReport
-
-# Integration-test coverage (requires Docker)
-./gradlew integrationTest jacocoIntegrationTestReport
-
-# Combined coverage from both test suites (requires Docker)
-./gradlew jacocoCombinedReport
-```
-
-### Generate coverage from VS Code
-
-Open the **Terminal → Run Task…** menu (`Ctrl+Shift+P` → *Tasks: Run Task*) and choose one of:
-
-| Task label | What it does |
-| --- | --- |
-| `gradle: coverage (unit tests)` | Runs unit tests and generates the unit-test JaCoCo report |
-| `gradle: coverage (integration tests)` | Runs integration tests and generates the integration-test JaCoCo report |
-| `gradle: coverage (combined)` | Runs both test suites and generates the merged JaCoCo report |
-| `coverage: open unit test report` | Opens the unit-test HTML report in the default browser |
-| `coverage: open combined report` | Opens the combined HTML report in the default browser |
-
-### What is excluded from coverage
-
-The following classes are excluded from all JaCoCo reports to avoid noise:
-
-- `DemoApplicationKt` — Spring Boot entry point, not meaningful to cover.
-- Kotlin-generated synthetic classes (`*$*.class`) — lambda wrappers, companion objects, etc.
-
-### XML reports for CI / SonarQube
-
-Each report task also produces an XML file alongside the HTML output:
-
-| Report | XML path |
-| --- | --- |
-| Unit tests | `build/reports/jacoco/unitTest/jacocoUnitTestReport.xml` |
-| Integration tests | `build/reports/jacoco/integrationTest/jacocoIntegrationTestReport.xml` |
-| Combined | `build/reports/jacoco/combined/jacocoCombinedReport.xml` |
-
-These XML files can be consumed directly by SonarQube, Codecov, or any CI pipeline that understands the JaCoCo XML format.
+**VS Code tasks** (`Ctrl+Shift+P` → *Tasks: Run Task*): `gradle: coverage (unit tests)`, `gradle: coverage (integration tests)`, `gradle: coverage (combined)`, `coverage: open unit test report`, `coverage: open combined report`.
 
 ## Linting
 
-Code style is enforced with **[ktlint](https://pinterest.github.io/ktlint/)** (version 1.3.1) via the [`org.jlleitschuh.gradle.ktlint`](https://github.com/JLLeitschuh/ktlint-gradle) Gradle plugin (version 12.1.1).
-
-ktlint follows the [Kotlin coding conventions](https://kotlinlang.org/docs/coding-conventions.html) and the [Android Kotlin style guide](https://developer.android.com/kotlin/style-guide) out of the box. Project-specific overrides are declared in [`.editorconfig`](.editorconfig).
-
-### Check for violations (read-only)
-
-Scans all Kotlin sources and prints every style violation. Exits with a non-zero code if any violation is found — suitable for CI.
+Code style is enforced with **[ktlint](https://pinterest.github.io/ktlint/)** 1.3.1 via the `org.jlleitschuh.gradle.ktlint` plugin 12.1.1. Project-specific overrides are in [`.editorconfig`](.editorconfig).
 
 ```bash
-./gradlew ktlintCheck
+./gradlew ktlintCheck    # check for violations (CI-safe, non-zero exit on failure)
+./gradlew ktlintFormat   # auto-fix violations in-place
 ```
 
-### Auto-format sources
+`ktlintCheck` runs automatically as part of `./gradlew check` and `./gradlew build`. To skip: `./gradlew build -x ktlintCheck`.
 
-Rewrites all Kotlin sources in-place to comply with ktlint rules.
-
-```bash
-./gradlew ktlintFormat
-```
-
-> **Tip:** Run `ktlintFormat` before committing to avoid `ktlintCheck` failures in CI.
-
-### Linting in the build lifecycle
-
-`ktlintCheck` is wired into the `check` task, so it runs automatically as part of:
-
-```bash
-./gradlew check   # linting + tests + coverage
-./gradlew build   # full build including check
-```
-
-To build without linting (e.g. during rapid iteration):
-
-```bash
-./gradlew build -x ktlintCheck
-```
-
-### Linting from VS Code
-
-Open the **Terminal → Run Task…** menu (`Ctrl+Shift+P` → *Tasks: Run Task*) and choose:
-
-| Task label | What it does |
-| --- | --- |
-| `gradle: ktlintCheck` | Checks all Kotlin sources for style violations; violations appear in the **Problems** panel |
-| `gradle: ktlintFormat` | Auto-formats all Kotlin sources in-place |
-
-### Reports
-
-After running `ktlintCheck`, a Checkstyle-compatible XML report is written to:
-
-```
-build/reports/ktlint/
-```
-
-This can be consumed by CI tools (e.g. GitHub Actions, SonarQube) that understand the Checkstyle XML format.
-
-### Style rules
-
-All rules are configured in [`.editorconfig`](.editorconfig). Key settings:
+Key style rules (see [`.editorconfig`](.editorconfig) for full config):
 
 | Rule | Value |
-| --- | --- |
-| Indent style | spaces |
-| Indent size | 4 |
+|---|---|
+| Indent style | spaces (4) |
 | Max line length | 120 |
 | Wildcard imports | disabled |
 | Trailing commas | disabled |
 
+Reports are written to `build/reports/ktlint/` (Checkstyle-compatible XML).
+
 ## Data Model
-The core entity is the `Patient`, which has relationships with:
+
+Core entity: `Patient`, related to:
 - `HealthInsurance` (One-to-One)
-- `HealthData` (One-to-Many)
-- `Examination` (One-to-Many)
-- `Diagnosis` (One-to-Many)
-- `Treatment` (One-to-Many)
+- `HealthData`, `Examination`, `Diagnosis`, `Treatment` (One-to-Many)
