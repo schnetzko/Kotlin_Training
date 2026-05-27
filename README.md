@@ -41,7 +41,7 @@ Integration tests (files matching `*IntegrationTest.kt`) use **[Testcontainers](
 1. **Container start** — `@BeforeAll` starts a `postgres:16-alpine` container before any test in the class runs.
 2. **Dynamic wiring** — `@DynamicPropertySource` overrides `spring.datasource.*` with the container's actual JDBC URL, username, and password, so no manual configuration is needed.
 3. **Schema creation** — `spring.jpa.hibernate.ddl-auto: create-drop` (from `application-test.yml`) creates all tables at context startup and drops them on shutdown.
-4. **Test execution** — each test method POSTs data through the real HTTP layer (`MockMvc`) and verifies the response as well as subsequent GET results against the live database.
+4. **Test execution** — each test method POSTs data through the full Spring MVC stack via `MockMvc` (dispatched in-process, not over a real TCP socket) and verifies the response as well as subsequent GET results against the live database.
 5. **Container stop** — `@AfterAll` stops and removes the container after all tests in the class have finished.
 
 > **`PatientIntegrationTest`** is the reference integration test. It POSTs a single patient via `POST /patients`, asserts the `201 Created` response body, then calls `GET /patients` and verifies the patient is persisted and returned correctly.
@@ -85,6 +85,59 @@ Runs the full build, which includes `check` and therefore executes both unit and
 ```bash
 ./gradlew build -x test -x integrationTest
 ```
+
+## Dev Environment
+
+### Debugging in VS Code
+
+The project ships with pre-configured VS Code launch configurations ([`.vscode/launch.json`](.vscode/launch.json)) and tasks ([`.vscode/tasks.json`](.vscode/tasks.json)) so you can attach a debugger without any manual setup.
+
+#### Option 1 — Compound: Boot Run + Attach Debugger (recommended)
+
+This is the easiest way to debug. A single VS Code launch starts the application in debug mode **and** attaches the debugger automatically.
+
+1. Open the **Run & Debug** panel (`Ctrl+Shift+D` / `⌘+Shift+D`).
+2. Select **`Kotlin: Boot Run + Attach Debugger`** from the dropdown.
+3. Click **▶ Start Debugging** (or press `F5`).
+
+What happens under the hood:
+- VS Code runs the `gradle: bootRunDebug` pre-launch task, which executes `./gradlew bootRunDebug`.
+- The Gradle task ([`build.gradle.kts`](build.gradle.kts:179)) starts Spring Boot with the JDWP agent: `-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005`.
+- Once the app prints `Started … in … seconds`, VS Code attaches the Java debugger to `localhost:5005`.
+- Set breakpoints anywhere in the source — they will be hit on the next matching request.
+
+> **Note:** `suspend=n` means the application boots immediately without waiting for the debugger to connect, so the app is usable even if you haven't attached yet.
+
+#### Option 2 — Attach manually to a running instance
+
+If you already started the application with `./gradlew bootRunDebug` from a terminal:
+
+1. Open the **Run & Debug** panel.
+2. Select **`Kotlin: Attach to Spring Boot (5005)`**.
+3. Click **▶ Start Debugging** (or press `F5`).
+
+The debugger attaches to the JDWP agent already listening on port `5005`.
+
+#### Option 3 — Java debugger launch (compile & run)
+
+This configuration compiles the project first and then launches the application directly through the VS Code Java debugger (no separate terminal needed):
+
+1. Open the **Run & Debug** panel.
+2. Select **`Kotlin: Run DemoApplication (Java debugger)`**.
+3. Click **▶ Start Debugging** (or press `F5`).
+
+The `gradle: classes` pre-launch task compiles the Kotlin sources before the JVM is started. The active Spring profile is set to `default` via `-Dspring.profiles.active=default`.
+
+> **Prerequisite:** An `.env` file must exist in the workspace root if environment variables are required (the launch config references `${workspaceFolder}/.env`).
+
+#### Debug port reference
+
+| Setting | Value |
+| --- | --- |
+| Protocol | JDWP over TCP/IP |
+| Host | `localhost` |
+| Port | `5005` |
+| Suspend on start | `n` (app starts immediately) |
 
 ### Database Configuration
 The application is configured to connect to a PostgreSQL database with the following settings:

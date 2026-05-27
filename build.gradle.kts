@@ -175,6 +175,17 @@ tasks.register<Test>("integrationTest") {
     }))
 }
 
+// Starts the application with JDWP debug agent on port 5005 (suspend=n so the app boots immediately)
+tasks.register<org.springframework.boot.gradle.tasks.run.BootRun>("bootRunDebug") {
+    description = "Runs the Spring Boot application with a remote-debug agent on port 5005."
+    group = "application"
+    mainClass.set("com.medical.management.DemoApplicationKt")
+    classpath = sourceSets["main"].runtimeClasspath
+    jvmArgs(
+        "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
+    )
+}
+
 // Make `check` depend on the integration tests so a standard verification run covers both
 tasks.named("check") {
     dependsOn("integrationTest")
