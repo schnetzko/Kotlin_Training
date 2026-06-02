@@ -15,7 +15,7 @@
     {
       "label": "gradle: bootRunDebug",
       "type": "shell",
-      "command": "./gradlew bootRunDebug",
+      "command": "bash -lc 'if docker ps --filter \"name=kotlin_training_postgres\" --filter \"status=running\" --format \"{{.Names}}\" | grep -q kotlin_training_postgres; then echo \"PostgreSQL already running\"; elif docker ps -a --filter \"name=kotlin_training_postgres\" --format \"{{.Names}}\" | grep -q kotlin_training_postgres; then echo \"Starting existing PostgreSQL container\"; docker start kotlin_training_postgres >/dev/null; else echo \"Creating PostgreSQL container\"; docker run -d --name kotlin_training_postgres -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=medical_data postgres:15 >/dev/null; fi; ./gradlew bootRunDebug'",
       "isBackground": true,
       "group": "build",
       "presentation": {
