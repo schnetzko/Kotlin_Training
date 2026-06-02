@@ -28,6 +28,29 @@ gradle bootRun      # via system Gradle
 
 Default port: `8080`. Database config: `jdbc:postgresql://localhost:5432/medical_data` (user: `admin`, password: `medical_pw`).
 
+## Development scripts
+
+To simplify local development there are helper scripts in the repository root that manage the local PostgreSQL container and application lifecycle.
+
+- `./start.sh` — Ensures the `kotlin_training_postgres` container is running (creates it if missing), waits for readiness, creates the `medical_data` database if needed, then starts the application via `./gradlew bootRun`.
+- `./start_debug.sh` — Same as `start.sh` but starts the application in debug mode via `./gradlew bootRunDebug` (debug port 5005).
+- `./stop.sh` — Stops the Spring Boot process and the `kotlin_training_postgres` Docker container.
+- `./restart.sh` — Runs `./stop.sh` then `./start.sh` to restart services.
+- `./check.sh` — Reports status for the PostgreSQL container, `medical_data` database, the application process, HTTP port (8081) and debug port (5005).
+
+Example:
+
+```bash
+./start.sh
+# or for debugging
+./start_debug.sh
+
+./check.sh
+./stop.sh
+./restart.sh
+```
+
+The VS Code tasks in `.vscode/tasks.json` have been updated to call these scripts, so you can run them via the Command Palette (`Tasks: Run Task`) as well.
 ## Running Tests
 
 Integration tests (`*IntegrationTest.kt`) use **Testcontainers** to spin up a real `postgres:16-alpine` container automatically — no manual setup needed. Schema is created/dropped via `spring.jpa.hibernate.ddl-auto: create-drop` (see [`application-test.yml`](src/test/resources/application-test.yml)).

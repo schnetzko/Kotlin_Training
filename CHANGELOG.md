@@ -78,5 +78,10 @@ The table below lists each endpoint and its exact log messages:
 
 ---
 
+#### Developer scripts
+
+- Added helper scripts to manage the local development lifecycle: `start.sh`, `start_debug.sh`, `stop.sh`, `restart.sh`, and `check.sh`. These scripts start/stop the `kotlin_training_postgres` container, wait for PostgreSQL readiness, ensure the `medical_data` database exists, and start/stop the Spring Boot application for convenience during development.
+
+
 <!-- Links -->
 [0.1.0-dev]: https://github.com/your-org/your-repo/releases/tag/v0.1.0-dev
