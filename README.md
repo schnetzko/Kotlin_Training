@@ -16,17 +16,17 @@ A RESTful API built with Kotlin and Spring Boot.
 ## Prerequisites
 
 - Java 21+
-- Docker (required for integration tests via Testcontainers)
-- PostgreSQL (for running the app locally)
+- Docker (required for local PostgreSQL containers and integration tests)
 
 ## Running the Application
 
 ```bash
 ./gradlew bootRun   # via Gradle wrapper (recommended)
-gradle bootRun      # via system Gradle
+./gradlew bootRunDebug
 ```
 
-Default port: `8080`. Database config: `jdbc:postgresql://localhost:5432/medical_data` (user: `admin`, password: `medical_pw`).
+Default root API port: `8081`.
+Local database config: `jdbc:postgresql://localhost:5432/medical_data` (user: `postgres`, password: `postgres`).
 
 ## Development scripts
 
@@ -35,7 +35,6 @@ To simplify local development there are helper scripts in the repository root th
 - `./start.sh` — Ensures the `kotlin_training_postgres` container is running (creates it if missing), waits for readiness, creates the `medical_data` database if needed, then starts the application via `./gradlew bootRun`.
 - `./start_debug.sh` — Same as `start.sh` but starts the application in debug mode via `./gradlew bootRunDebug` (debug port 5005).
 - `./stop.sh` — Stops the Spring Boot process and the `kotlin_training_postgres` Docker container.
-- `./restart.sh` — Runs `./stop.sh` then `./start.sh` to restart services.
 - `./restart.sh` — Runs `./stop.sh` then `./start.sh` to restart services.
 - `./restart_debug.sh` — Runs `./stop.sh` then `./start_debug.sh` to restart services in debug mode.
 - `./check.sh` — Reports status for the PostgreSQL container, `medical_data` database, the application process, HTTP port (8081) and debug port (5005).
@@ -53,7 +52,45 @@ Example:
 ./restart_debug.sh
 ```
 
-The VS Code tasks in `.vscode/tasks.json` have been updated to call these scripts, so you can run them via the Command Palette (`Tasks: Run Task`) as well.
+## Docker Compose
+
+A local `docker-compose.yml` is included to start one PostgreSQL database instance per service:
+
+- `postgres_treatment` → host port `5433`, DB `treatment_db`
+- `postgres_diagnosis` → host port `5434`, DB `diagnosis_db`
+- `postgres_examination` → host port `5435`, DB `examination_db`
+
+Run the database stack:
+
+```bash
+docker compose up -d
+```
+
+Stop it:
+
+```bash
+docker compose down
+```
+
+Service application ports:
+
+- `services/treatment` → `8082`
+- `services/diagnosis` → `8083`
+- `services/examination` → `8084`
+
+## Microservices
+
+This repository uses a monorepo structure with separate Spring Boot modules for each domain service.
+Each service has its own PostgreSQL database instance and is intended to run independently on a dedicated port:
+
+- `services/treatment` — treatment microservice on port `8082`
+- `services/diagnosis` — diagnosis microservice on port `8083`
+- `services/examination` — examination microservice on port `8084`
+
+Use `docker compose up -d` to start the per-service PostgreSQL databases, then run each service module independently as needed.
+
+The VS Code tasks in `.vscode/tasks.json` have been updated to call the helper scripts, so you can run them via the Command Palette (`Tasks: Run Task`) as well.
+
 ## Running Tests
 
 Integration tests (`*IntegrationTest.kt`) use **Testcontainers** to spin up a real `postgres:16-alpine` container automatically — no manual setup needed. Schema is created/dropped via `spring.jpa.hibernate.ddl-auto: create-drop` (see [`application-test.yml`](src/test/resources/application-test.yml)).

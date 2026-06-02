@@ -1,0 +1,11 @@
+server:
+  port: 8083
+
+spring:
+  datasource:
+    url: ${'$'}{SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/diagnosis_db}
+    username: ${'$'}{SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${'$'}{SPRING_DATASource_PASSWORD:postgres}
+  jpa:
+    hibernate:
+      ddl-auto: update

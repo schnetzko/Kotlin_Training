@@ -80,8 +80,8 @@ The table below lists each endpoint and its exact log messages:
 
 #### Developer scripts
 
-- Added helper scripts to manage the local development lifecycle: `start.sh`, `start_debug.sh`, `stop.sh`, `restart.sh`, and `check.sh`. These scripts start/stop the `kotlin_training_postgres` container, wait for PostgreSQL readiness, ensure the `medical_data` database exists, and start/stop the Spring Boot application for convenience during development.
- - Added helper scripts to manage the local development lifecycle: `start.sh`, `start_debug.sh`, `stop.sh`, `restart.sh`, `restart_debug.sh`, and `check.sh`. These scripts start/stop the `kotlin_training_postgres` container, wait for PostgreSQL readiness, ensure the `medical_data` database exists, and start/stop the Spring Boot application for convenience during development.
+- Added helper scripts to manage the local development lifecycle: `start.sh`, `start_debug.sh`, `stop.sh`, `restart.sh`, `restart_debug.sh`, and `check.sh`. These scripts start/stop the `kotlin_training_postgres` container, wait for PostgreSQL readiness, ensure the `medical_data` database exists, and start/stop the Spring Boot application for convenience during development.
+- Added `docker-compose.yml` to bring up one PostgreSQL container per service with dedicated DB names: `treatment_db`, `diagnosis_db`, and `examination_db`.
 
 
 <!-- Links -->

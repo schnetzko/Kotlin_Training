@@ -1,0 +1,58 @@
+version: "3.9"
+
+services:
+  postgres_treatment:
+    image: postgres:15
+    container_name: kotlin_training_postgres_treatment
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: treatment_db
+    volumes:
+      - treatment_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  postgres_diagnosis:
+    image: postgres:15
+    container_name: kotlin_training_postgres_diagnosis
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: diagnosis_db
+    volumes:
+      - diagnosis_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  postgres_examination:
+    image: postgres:15
+    container_name: kotlin_training_postgres_examination
+    ports:
+      - "5435:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: examination_db
+    volumes:
+      - examination_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  treatment_data:
+  diagnosis_data:
+  examination_data:
