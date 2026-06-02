@@ -36,6 +36,8 @@ To simplify local development there are helper scripts in the repository root th
 - `./start_debug.sh` — Same as `start.sh` but starts the application in debug mode via `./gradlew bootRunDebug` (debug port 5005).
 - `./stop.sh` — Stops the Spring Boot process and the `kotlin_training_postgres` Docker container.
 - `./restart.sh` — Runs `./stop.sh` then `./start.sh` to restart services.
+- `./restart.sh` — Runs `./stop.sh` then `./start.sh` to restart services.
+- `./restart_debug.sh` — Runs `./stop.sh` then `./start_debug.sh` to restart services in debug mode.
 - `./check.sh` — Reports status for the PostgreSQL container, `medical_data` database, the application process, HTTP port (8081) and debug port (5005).
 
 Example:
@@ -48,6 +50,7 @@ Example:
 ./check.sh
 ./stop.sh
 ./restart.sh
+./restart_debug.sh
 ```
 
 The VS Code tasks in `.vscode/tasks.json` have been updated to call these scripts, so you can run them via the Command Palette (`Tasks: Run Task`) as well.
