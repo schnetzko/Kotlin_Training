@@ -16,3 +16,6 @@ include 'services:webservice'
 */
 
 rootProject.name = 'Kotlin_Training'
+include 'services:diagnosis'
+include 'services:examnation'
+include 'services:treatment'
