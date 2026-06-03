@@ -1,6 +1,7 @@
 # Medical Management Backend
 
-A RESTful API built with Kotlin and Spring Boot.
+A RESTful API built with Kotlin and Spring Boot for general practice.
+It manages patients and calculates a risk-based prognosis, but also provides management of examinations, diagnosis and treatments by general practitioner or specialists. 
 
 > **Note:** Prototype for demonstration purposes — not production-ready.
 
@@ -18,6 +19,17 @@ A RESTful API built with Kotlin and Spring Boot.
 - Java 21+
 - Docker (required for local PostgreSQL containers and integration tests)
 
+## Microservices
+
+This repository uses a monorepo structure with separate Spring Boot modules for each domain service.
+Each service has its own PostgreSQL database instance and is intended to run independently on a dedicated port.
+
+## Data Model
+
+Core entity: `Patient`, related to:
+- `HealthInsurance` (One-to-One)
+- `HealthData`, `Examination`, `Diagnosis`, `Treatment` (One-to-Many)
+
 ## Running the Application
 
 ```bash
@@ -25,73 +37,24 @@ A RESTful API built with Kotlin and Spring Boot.
 ./gradlew bootRunDebug
 ```
 
-Default root API port: `8081`.
-Local database config: `jdbc:postgresql://localhost:5432/medical_data` (user: `postgres`, password: `postgres`).
+## Endpoints
 
-## Development scripts
+| Resource | GET | POST |
+|---|---|---|
+| Patients | `GET /patients` | `POST /patients` |
+| Contacts | `GET /contacts`, `GET /specialists` | `POST /contacts`, `POST /specialists` |
+| Diagnoses | `GET /diagnoses` | `POST /diagnoses` |
+| Drug Therapies | `GET /drug-therapies` | `POST /drug-therapies` |
+| Examinations | `GET /examinations` | `POST /examinations` |
+| Health Data | `GET /health-data` | `POST /health-data` |
+| Health Insurances | `GET /health-insurances` | `POST /health-insurances` |
+| Treatments | `GET /treatments` | `POST /treatments` |
 
-To simplify local development there are helper scripts in the repository root that manage the local PostgreSQL container and application lifecycle.
+## local Dev environment
 
-- `./start.sh` — Ensures the `kotlin_training_postgres` container is running (creates it if missing), waits for readiness, creates the `medical_data` database if needed, then starts the application via `./gradlew bootRun`.
-- `./start_debug.sh` — Same as `start.sh` but starts the application in debug mode via `./gradlew bootRunDebug` (debug port 5005).
-- `./stop.sh` — Stops the Spring Boot process and the `kotlin_training_postgres` Docker container.
-- `./restart.sh` — Runs `./stop.sh` then `./start.sh` to restart services.
-- `./restart_debug.sh` — Runs `./stop.sh` then `./start_debug.sh` to restart services in debug mode.
-- `./check.sh` — Reports status for the PostgreSQL container, `medical_data` database, the application process, HTTP port (8081) and debug port (5005).
+To simplify local development there are helper scripts in admin/dev that manage local PostgreSQL containers using Docker Compose and application lifecycle.
 
-Example:
-
-```bash
-./start.sh
-# or for debugging
-./start_debug.sh
-
-./check.sh
-./stop.sh
-./restart.sh
-./restart_debug.sh
-```
-
-## Docker Compose
-
-A local `docker-compose.yml` is included to start one PostgreSQL database instance per service:
-
-- `postgres_treatment` → host port `5433`, DB `treatment_db`
-- `postgres_diagnosis` → host port `5434`, DB `diagnosis_db`
-- `postgres_examination` → host port `5435`, DB `examination_db`
-
-Run the database stack:
-
-```bash
-docker compose up -d
-```
-
-Stop it:
-
-```bash
-docker compose down
-```
-
-Service application ports:
-
-- `services/treatment` → `8082`
-- `services/diagnosis` → `8083`
-- `services/examination` → `8084`
-
-## Microservices
-
-This repository uses a monorepo structure with separate Spring Boot modules for each domain service.
-Each service has its own PostgreSQL database instance and is intended to run independently on a dedicated port:
-
-- `services/treatment` — treatment microservice on port `8082`
-- `services/diagnosis` — diagnosis microservice on port `8083`
-- `services/examination` — examination microservice on port `8084`
-
-Use `docker compose up -d` to start the per-service PostgreSQL databases, then run each service module independently as needed.
-
-The VS Code tasks in `.vscode/tasks.json` have been updated to call the helper scripts, so you can run them via the Command Palette (`Tasks: Run Task`) as well.
-
-## Running Tests
+### Running Tests
 
 Integration tests (`*IntegrationTest.kt`) use **Testcontainers** to spin up a real `postgres:16-alpine` container automatically — no manual setup needed. Schema is created/dropped via `spring.jpa.hibernate.ddl-auto: create-drop` (see [`application-test.yml`](src/test/resources/application-test.yml)).
 
@@ -110,7 +73,7 @@ Integration tests (`*IntegrationTest.kt`) use **Testcontainers** to spin up a re
 ./gradlew build -x test -x integrationTest                                  # skip all tests
 ```
 
-## Debugging in VS Code
+### Debugging in VS Code
 
 The project ships with pre-configured launch configs ([`.vscode/launch.json`](.vscode/launch.json)) and tasks ([`.vscode/tasks.json`](.vscode/tasks.json)).
 
@@ -126,20 +89,7 @@ Open **Run & Debug** (`Ctrl+Shift+D`) and select a configuration:
 
 > **Option 3 prerequisite:** An `.env` file must exist in the workspace root if environment variables are required.
 
-## Endpoints
-
-| Resource | GET | POST |
-|---|---|---|
-| Patients | `GET /patients` | `POST /patients` |
-| Contacts | `GET /contacts`, `GET /specialists` | `POST /contacts`, `POST /specialists` |
-| Diagnoses | `GET /diagnoses` | `POST /diagnoses` |
-| Drug Therapies | `GET /drug-therapies` | `POST /drug-therapies` |
-| Examinations | `GET /examinations` | `POST /examinations` |
-| Health Data | `GET /health-data` | `POST /health-data` |
-| Health Insurances | `GET /health-insurances` | `POST /health-insurances` |
-| Treatments | `GET /treatments` | `POST /treatments` |
-
-## Code Coverage
+### Code Coverage
 
 Coverage is measured with **[JaCoCo](https://www.jacoco.org/jacoco/)** 0.8.11. Three separate HTML + XML reports are generated:
 
@@ -155,7 +105,7 @@ XML reports (same paths, `.xml` extension) are compatible with SonarQube, Codeco
 
 **VS Code tasks** (`Ctrl+Shift+P` → *Tasks: Run Task*): `gradle: coverage (unit tests)`, `gradle: coverage (integration tests)`, `gradle: coverage (combined)`, `coverage: open unit test report`, `coverage: open combined report`.
 
-## Linting
+### Linting
 
 Code style is enforced with **[ktlint](https://pinterest.github.io/ktlint/)** 1.3.1 via the `org.jlleitschuh.gradle.ktlint` plugin 12.1.1. Project-specific overrides are in [`.editorconfig`](.editorconfig).
 
@@ -176,9 +126,3 @@ Key style rules (see [`.editorconfig`](.editorconfig) for full config):
 | Trailing commas | disabled |
 
 Reports are written to `build/reports/ktlint/` (Checkstyle-compatible XML).
-
-## Data Model
-
-Core entity: `Patient`, related to:
-- `HealthInsurance` (One-to-One)
-- `HealthData`, `Examination`, `Diagnosis`, `Treatment` (One-to-Many)
