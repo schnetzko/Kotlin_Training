@@ -7,6 +7,30 @@ echo "Status Check: PostgreSQL containers for Treatment, Diagnosis, and Examinat
 echo "============================================================================="
 echo ""
 
+# Check PostgreSQL container for medical data
+echo "Checking PostgreSQL container for medical data..."
+if docker ps --filter "name=kotlin_training_postgres_medical_data" --filter "status=running" --format "{{.Names}}" | grep -q kotlin_training_postgres_medical_data; then
+  echo "✓ PostgreSQL container for medical data is RUNNING"
+  
+  # Check PostgreSQL connectivity
+  if docker exec -i kotlin_training_postgres_medical_data pg_isready -U postgres >/dev/null 2>&1; then
+    echo "✓ PostgreSQL for medical data is READY (responding to queries)"
+  else
+    echo "✗ PostgreSQL for medical data is NOT ready (not responding)"
+  fi
+  
+  # Check database existence
+  if docker exec -i kotlin_training_postgres_medical_data psql -U postgres -tc "SELECT 1 FROM pg_database WHERE datname='medical_data'" | grep -q 1; then
+    echo "✓ Database 'medical_data' EXISTS"
+  else
+    echo "✗ Database 'medical_data' NOT found"
+  fi
+else
+  echo "✗ PostgreSQL container for medical data is NOT running"
+fi
+
+echo ""
+
 # Check PostgreSQL container for treatment
 echo "Checking PostgreSQL container for treatment..."
 if docker ps --filter "name=kotlin_training_postgres_treatment" --filter "status=running" --format "{{.Names}}" | grep -q kotlin_training_postgres_treatment; then
