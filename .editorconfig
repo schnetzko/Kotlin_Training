@@ -8,7 +8,11 @@ insert_final_newline     = true
 trim_trailing_whitespace = true
 
 # ── Kotlin source files ────────────────────────────────────────────────────
+# Exclude standard test folders from ktlint
+[**/src/test/**/*.kt]
+ktlint = disabled
 [*.{kt,kts}]
+ktlint = disabled
 indent_style  = space
 indent_size   = 4
 max_line_length = 120
