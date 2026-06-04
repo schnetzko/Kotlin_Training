@@ -1,2 +1,2 @@
-rootProject.name = "kotlin-training"
-include("services:treatment", "services:diagnosis", "services:examination")
+rootProject.name = "kotlin_training"
+include("patient", "treatment", "diagnosis", "examination")

@@ -15,5 +15,5 @@ include 'api'
 include 'services:webservice'
 */
 
-rootProject.name = 'Kotlin_Training'
-include ("diagnosis", "examnation", "treatment")
+rootProject.name = 'kotlin_training'
+include ("patient", "diagnosis", "examination", "treatment")
