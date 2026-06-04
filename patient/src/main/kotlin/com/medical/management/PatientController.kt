@@ -10,13 +10,19 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/patients")
 class PatientController(
     private val repository: PatientRepository
 ) {
     private val logger = LoggerFactory.getLogger(PatientController::class.java)
 
-    @GetMapping
+    
+    @GetMapping("/")
+    fun root(): String {
+        logger.info("GET / - root endpoint called")
+        return "Welcome to Medical Management API - Patient"
+    }
+    
+    @GetMapping("/patients")
     fun getAll(): List<Patient> {
         logger.info("GET /patients - fetching all patients")
         val patients = repository.findAll()
@@ -24,7 +30,7 @@ class PatientController(
         return patients
     }
 
-    @PostMapping
+    @PostMapping("/patients")
     @ResponseStatus(HttpStatus.CREATED)
     fun create(
         @RequestBody patient: Patient

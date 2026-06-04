@@ -72,14 +72,6 @@ class ContactControllerTest {
     }
 
     @Test
-    fun `GET root should return welcome message`() {
-        mockMvc
-            .perform(get("/"))
-            .andExpect(status().isOk())
-            .andExpect(content().string("Welcome to Medical Management API"))
-    }
-
-    @Test
     fun `GET contacts should return all contacts`() {
         `when`(repository.findByType("CONTACT")).thenReturn(listOf(contact1, contact2))
 

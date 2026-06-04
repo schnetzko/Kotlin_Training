@@ -7,18 +7,13 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.RequestMapping
 
 @RestController
 class ContactController(
     private val repository: ContactRepository
 ) {
     private val logger = LoggerFactory.getLogger(ContactController::class.java)
-
-    @GetMapping("/")
-    fun root(): String {
-        logger.info("GET / - root endpoint called")
-        return "Welcome to Medical Management API"
-    }
 
     @GetMapping("/contacts")
     fun getContacts(): List<Contact> {
