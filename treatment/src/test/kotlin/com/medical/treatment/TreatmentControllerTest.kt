@@ -1,4 +1,4 @@
-package com.medical.management
+package com.medical.treatment
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.BeforeEach

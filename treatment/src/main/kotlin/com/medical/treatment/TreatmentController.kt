@@ -1,4 +1,4 @@
-package com.medical.management
+package com.medical.treatment
 
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -10,13 +10,18 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/treatments")
 class TreatmentController(
     private val repository: TreatmentRepository
 ) {
     private val logger = LoggerFactory.getLogger(TreatmentController::class.java)
-
-    @GetMapping
+    
+    @GetMapping("/")
+    fun root(): String {
+        logger.info("GET / - root endpoint called")
+        return "Welcome to Medical Management API - Treatment"
+    }
+    
+    @GetMapping("/treatments")
     fun getAll(): List<Treatment> {
         logger.info("GET /treatments - fetching all treatments")
         val treatments = repository.findAll()
@@ -24,7 +29,7 @@ class TreatmentController(
         return treatments
     }
 
-    @PostMapping
+    @PostMapping("/treatments")
     @ResponseStatus(HttpStatus.CREATED)
     fun create(
         @RequestBody treatment: Treatment

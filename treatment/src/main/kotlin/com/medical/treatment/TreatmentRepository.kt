@@ -1,4 +1,4 @@
-package com.medical.management
+package com.medical.treatment
 
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
