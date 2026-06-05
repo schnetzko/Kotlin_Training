@@ -1,4 +1,4 @@
-package com.medical.treatment
+package com.medical.examination
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import jakarta.persistence.Entity
@@ -22,22 +22,22 @@ data class Patient(
     val phone: String? = null,
     val date_of_birth: java.time.LocalDate? = null,
     val job_category: String? = null,
-/*     @OneToOne(mappedBy = "patient")
-    @JsonIgnoreProperties("patient")
-    val healthInsurance: HealthInsurance? = null,
-    @OneToMany(mappedBy = "patient")
-    @JsonIgnoreProperties("patient")
-    val healthData: List<HealthData> = mutableListOf(),
-    @OneToMany(mappedBy = "patient")
-    @JsonIgnoreProperties("patient")
-    val examinations: List<Examination> = mutableListOf(),
-    @OneToMany(mappedBy = "patient")
-    @JsonIgnoreProperties("patient")
-    val diagnoses: List<Diagnosis> = mutableListOf(),
-    @OneToMany(mappedBy = "patient")
-    @JsonIgnoreProperties("patient")
-    val treatments: List<Treatment> = mutableListOf()
- */) {
+    // @OneToOne(mappedBy = "patient")
+    // @JsonIgnoreProperties("patient")
+    // val healthInsurance: HealthInsurance? = null,
+    // @OneToMany(mappedBy = "patient")
+    // @JsonIgnoreProperties("patient")
+    // val healthData: List<HealthData> = mutableListOf(),
+    // @OneToMany(mappedBy = "patient")
+    // @JsonIgnoreProperties("patient")
+    // val examinations: List<Examination> = mutableListOf(),
+    // @OneToMany(mappedBy = "patient")
+    // @JsonIgnoreProperties("patient")
+    // val diagnoses: List<Diagnosis> = mutableListOf(),
+    // @OneToMany(mappedBy = "patient")
+    // @JsonIgnoreProperties("patient")
+    // val treatments: List<Treatment> = mutableListOf()
+) {
 /*     val allSpecialists: List<String>
         get() =
             (

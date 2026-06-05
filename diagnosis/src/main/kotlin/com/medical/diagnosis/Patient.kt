@@ -1,4 +1,4 @@
-package com.medical.treatment
+package com.medical.diagnosis
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import jakarta.persistence.Entity
