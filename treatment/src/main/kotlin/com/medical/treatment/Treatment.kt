@@ -17,8 +17,8 @@ data class Treatment(
     val name: String,
     val date: String,
     val type: String,
- /*    @ManyToOne
+    @ManyToOne
     @JoinColumn(name = "patient_id")
     @JsonIgnoreProperties("examinations", "diagnoses", "treatments", "healthData", "healthInsurance", "allSpecialists")
-    val patient: Patient */
+    val patient: Patient
 )
