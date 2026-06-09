@@ -1,7 +1,6 @@
 # Medical Management Backend
 
-A RESTful API built with Kotlin and Spring Boot for general practice.
-It manages patients and calculates a risk-based prognosis, but also provides management of examinations, diagnosis and treatments by general practitioner or specialists. 
+A RESTful API built with Kotlin and Spring Boot for general practice. It manages patients and calculates a risk-based prognosis, but also provides management of examinations, diagnosis and treatments by general practitioner or specialists. 
 
 > **Note:** Prototype for demonstration purposes — not production-ready.
 
@@ -22,20 +21,13 @@ It manages patients and calculates a risk-based prognosis, but also provides man
 ## Microservices
 
 This repository uses a monorepo structure with separate Spring Boot modules for each domain service.
-Each service has its own PostgreSQL database instance and is intended to run independently on a dedicated port.
+Each service has its own PostgreSQL database instance and is intended to run independently on a dedicated port. The provided microservices are patient, examination, diagnosis and treatment.
 
 ## Data Model
 
 Core entity: `Patient`, related to:
 - `HealthInsurance` (One-to-One)
 - `HealthData`, `Examination`, `Diagnosis`, `Treatment` (One-to-Many)
-
-## Running the Application
-
-```bash
-./gradlew bootRun   # via Gradle wrapper (recommended)
-./gradlew bootRunDebug
-```
 
 ## Endpoints
 
@@ -50,9 +42,37 @@ Core entity: `Patient`, related to:
 | Health Insurances | `GET /health-insurances` | `POST /health-insurances` |
 | Treatments | `GET /treatments` | `POST /treatments` |
 
-## local Dev environment
+## Dev Environment
 
-To simplify local development there are helper scripts in admin/dev that manage local PostgreSQL containers using Docker Compose and application lifecycle.
+To simplify local development there are helper scripts in admin/dev directory that manage local PostgreSQL containers using Docker Compose and application lifecycle.
+
+```bash
+/admin/dev/start.sh # starts all microservices (service = 1 JVM process and 1 Docker container)
+
+/admin/dev/stop.sh # stops all microservices.
+
+/admin/dev/restart.sh # restarts all microservices.
+```
+
+Or run each microservice separately for debugging or running tests.
+
+```bash
+# 1. start PostgreSQL containers
+./docker compose -up # (not required for tests)
+
+# 2. start Spring Boot service
+./gradlew <microservice>:bootRun|bootRunDebug
+# example for microservice patient 
+./gradlew patient:bootRun
+./gradlew patient:bootRunDebug
+```
+
+### local Endpoints
+
+- Patient http://localhost:8081/
+- Treatment http://localhost:8082/
+- Diagnosis http://localhost:8083/
+- Examination http://localhost:8084/
 
 ### Running Tests
 
@@ -60,17 +80,19 @@ Integration tests (`*IntegrationTest.kt`) use **Testcontainers** to spin up a re
 
 | Task | What it runs | Docker required |
 |---|---|---|
-| `./gradlew unitTest` | Unit tests only (`*Test.kt`, excluding `*IntegrationTest.kt`) | No |
-| `./gradlew integrationTest` | Integration tests only (`*IntegrationTest.kt`) | Yes |
-| `./gradlew test` | All tests (unit + integration) | Yes |
-| `./gradlew build` | Full build including all tests and linting | Yes |
+| `./gradlew <service>:unitTest` | Unit tests only (`*Test.kt`, excluding `*IntegrationTest.kt`) | No |
+| `./gradlew <service>:integrationTest` | Integration tests only (`*IntegrationTest.kt`) | Yes |
+| `./gradlew <service>:test` | All tests (unit + integration) | Yes |
+| `./gradlew <service>:build` | Full build including all tests and linting | Yes |
 
 ```bash
-./gradlew unitTest                                                          # unit tests only
-./gradlew integrationTest                                                   # integration tests only
-./gradlew test                                                              # all tests
-./gradlew test --tests "com.medical.management.PatientControllerTest"       # specific class
-./gradlew build -x test -x integrationTest                                  # skip all tests
+# example for microservice patient
+./gradlew patient:unitTest
+./gradlew patient:integrationTest
+./gradlew patient:test                                                        # all tests
+./gradlew patient:test --tests "com.medical.management.PatientControllerTest" # specific test class
+./gradlew patient:build
+./gradlew patient:build -x test                                               # build without running tests
 ```
 
 ### Debugging in VS Code
@@ -87,7 +109,7 @@ Open **Run & Debug** (`Ctrl+Shift+D`) and select a configuration:
 | `Kotlin: Debug Unit Tests` | Runs unit tests suspended until debugger connects | `5006` | `y` |
 | `Kotlin: Debug Integration Tests` | Runs integration tests suspended until debugger connects (requires Docker) | `5007` | `y` |
 
-> **Option 3 prerequisite:** An `.env` file must exist in the workspace root if environment variables are required.
+> **Remark:** An `.env` file must exist in the workspace root if environment variables are required.
 
 ### Code Coverage
 
@@ -101,7 +123,7 @@ Coverage is measured with **[JaCoCo](https://www.jacoco.org/jacoco/)** 0.8.11. T
 
 XML reports (same paths, `.xml` extension) are compatible with SonarQube, Codecov, and standard CI pipelines.
 
-**Excluded from coverage:** `DemoApplicationKt` (entry point) and Kotlin synthetic classes (`*$*.class`).
+**Excluded from coverage:** `*ApplicationKt` (entry point) and Kotlin synthetic classes (`*$*.class`).
 
 **VS Code tasks** (`Ctrl+Shift+P` → *Tasks: Run Task*): `gradle: coverage (unit tests)`, `gradle: coverage (integration tests)`, `gradle: coverage (combined)`, `coverage: open unit test report`, `coverage: open combined report`.
 
