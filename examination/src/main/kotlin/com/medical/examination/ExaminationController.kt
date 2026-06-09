@@ -29,7 +29,7 @@ class ExaminationController(
         return examinations
     }
 
-    @PostMapping
+    @PostMapping("/examinations")
     @ResponseStatus(HttpStatus.CREATED)
     fun create(
         @RequestBody examination: Examination
