@@ -29,7 +29,7 @@ class DiagnosisController (
         return diagnoses
     }
 
-    @PostMapping
+    @PostMapping("/diagnoses")
     @ResponseStatus(HttpStatus.CREATED)
     fun create(
         @RequestBody diagnosis: Diagnosis

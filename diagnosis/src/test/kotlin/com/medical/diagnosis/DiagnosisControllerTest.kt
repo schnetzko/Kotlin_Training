@@ -1,4 +1,4 @@
-package com.medical.management
+package com.medical.diagnosis
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.BeforeEach
@@ -61,18 +61,12 @@ class DiagnosisControllerTest {
     }
 
     @Test
-    fun `GET root endpoint for dignosis`() {
-        `when`(repository.findAll()).thenReturn(listOf(diagnosis1, diagnosis2))
-
+    fun `GET root should return welcome message`() {
         mockMvc
-            .perform(get("/diagnoses"))
+            .perform(get("/"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.[0].name").value("Common Cold"))
-            .andExpect(jsonPath("$.[1].name").value("Flu"))
-
-        verify(repository).findAll()
+            .andExpect(content().string("Welcome to Medical Management API - Diagnosis"))
     }
-
 
     @Test
     fun `GET diagnoses should return all diagnoses`() {
