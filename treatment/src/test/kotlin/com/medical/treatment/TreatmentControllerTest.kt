@@ -58,6 +58,14 @@ class TreatmentControllerTest {
     }
 
     @Test
+    fun `GET root should return welcome message`() {
+        mockMvc
+            .perform(get("/"))
+            .andExpect(status().isOk())
+            .andExpect(content().string("Welcome to Medical Management API - Treatment"))
+    }
+
+    @Test
     fun `GET treatments should return all treatments`() {
         `when`(repository.findAll()).thenReturn(listOf(treatment1, treatment2))
 
