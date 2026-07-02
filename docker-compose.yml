@@ -1,17 +1,15 @@
-version: "3.9"
-
 services:
-  postgres_medical_data:
+  postgres_patient:
     image: postgres:15
-    container_name: kotlin_training_postgres_medical_data
+    container_name: kotlin_training_postgres_patient
     ports:
       - "5432:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: medical_data
+      POSTGRES_DB: patient_db
     volumes:
-      - medical_data:/var/lib/postgresql/data
+      - patient_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
@@ -70,7 +68,7 @@ services:
       retries: 10
 
 volumes:
-  medical_data:
+  patient_data:
   treatment_data:
   diagnosis_data:
   examination_data:
