@@ -1,11 +1,20 @@
 #!/bin/bash
 
-# Stop Spring Boot application and PostgreSQL container
+# Stop Spring Boot services and corresponding PostgreSQL containers
+set -e
 
-echo "Stopping Spring Boot application..."
-pkill -f "DemoApplicationKt|bootRun|bootRunDebug" || true
-sleep 1
-echo "Application stopped"
+stop_services() {
+    echo "Stop Spring Boot services"
+    for service in "$@"; do
+        echo "$service: started stopping..."
+        # Note: ^ ensures first letter is in uppercase, e.g. ->D<-iagnosisApplication
+        pkill -f "${service^}Application" >/dev/null 2>&1 && echo "$service: stopped" || echo "$service: process not running or already stopped"
+        sleep 1
+    done
+}
 
-echo "Stopping PostgreSQL container..."
-docker stop kotlin_training_postgres >/dev/null 2>&1 && echo "PostgreSQL stopped" || echo "PostgreSQL container not running or already stopped"
+services=("patient" "examination" "diagnosis" "treatment")
+stop_services ${services[@]}
+
+echo "Stop all PostgreSQL containers"
+docker compose stop

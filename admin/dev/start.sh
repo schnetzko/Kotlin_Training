@@ -1,30 +1,52 @@
 #!/bin/bash
 
-# Start Spring Boot application with PostgreSQL
+# Start Spring Boot application with PostgreSQL. 
+# Application provides multiple microservices. Each microservice represents
+# 2 processes - PostgreSQL Server as container and Spring Boot application.
 set -e
 
-if docker ps --filter "name=kotlin_training_postgres" --filter "status=running" --format "{{.Names}}" | grep -q kotlin_training_postgres; then
-  echo "PostgreSQL already running"
-elif docker ps -a --filter "name=kotlin_training_postgres" --format "{{.Names}}" | grep -q kotlin_training_postgres; then
-  echo "Starting existing PostgreSQL container"
-  docker start kotlin_training_postgres >/dev/null
-else
-  echo "Creating PostgreSQL container"
-  docker run -d --name kotlin_training_postgres -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=medical_data postgres:15 >/dev/null
-fi
+is_service_running () {
+  local service="$1"
+  if pgrep -fl ${service} >/dev/null 2>&1; then
+    return 0
+  fi
+  return 1
+}
 
-echo "Waiting for PostgreSQL readiness..."
-for i in {1..30}; do
-  docker exec -i kotlin_training_postgres pg_isready -U postgres >/dev/null 2>&1 && break || sleep 1
-done
+check_PostgreSQL_container () {
+  local service="$1"
+  local console_prefix="${service}: PostgreSQL container"
+  echo "${console_prefix}: waiting for readiness..."
+  for i in {1..30}; do
+    docker exec -i kotlin_training_postgres_${service} pg_isready -U postgres >/dev/null 2>&1 && break || sleep 1
+  done
+  echo "${console_prefix}: is ready"
 
-echo "PostgreSQL is ready"
-echo "Ensuring medical_data exists..."
+  echo "${console_prefix}: ensuring ${service}_db exists..."
+  if docker exec -i kotlin_training_postgres_${service} psql -U postgres -tc "SELECT 1 FROM pg_database WHERE datname='${service}_db'" | grep -q 1; then
+    echo "${console_prefix}: ${service}_db exists"
+  else
+    docker exec -i kotlin_training_postgres_${service} psql -U postgres -c "CREATE DATABASE ${service}_db;" && echo "$service: PostgreSQL container: Created ${service}_db"
+  fi
+}
 
-if docker exec -i kotlin_training_postgres psql -U postgres -tc "SELECT 1 FROM pg_database WHERE datname='medical_data'" | grep -q 1; then
-  echo "Database medical_data exists"
-else
-  docker exec -i kotlin_training_postgres psql -U postgres -c "CREATE DATABASE medical_data;" && echo "Created database medical_data"
-fi
+start_services () {
+  for service in "$@"; do
+    check_PostgreSQL_container "$service"
 
-./gradlew bootRun --no-daemon
+    if (is_service_running "$service"); then
+      echo "$service: Spring Boot service is already running..."
+    else
+      echo "$service: Start Spring Boot service..."
+      ./gradlew ${service}:bootRun --no-daemon > ${service}.log 2>&1 &
+      echo "$service: Spring Boot service started as background process with PID $!"
+      echo "$service: Logs are being written to ${service}.log"
+    fi
+  done
+}
+
+echo "Start PostgresSQL containers"
+docker compose up -d
+
+services=("patient" "examination" "diagnosis" "treatment")
+start_services ${services[@]}
