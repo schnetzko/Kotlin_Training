@@ -5,6 +5,20 @@
 # 2 processes - PostgreSQL Server as container and Spring Boot application.
 set -e
 
+DEBUG_MODE=false
+
+# Loop through all arguments passed to the script
+for arg in "$@"; do
+  if [[ "$arg" == "-debug" ]]; then
+    DEBUG_MODE=true
+    break # Stop looping once found
+  else
+    echo "Unknown argument: $arg"
+    echo "Usage: ./start.sh [-debug]"
+    exit 1 
+  fi
+done
+
 is_service_running () {
   local service="$1"
   if pgrep -fl ${service} >/dev/null 2>&1; then
@@ -33,12 +47,15 @@ check_PostgreSQL_container () {
 start_services () {
   for service in "$@"; do
     check_PostgreSQL_container "$service"
-
     if (is_service_running "$service"); then
       echo "$service: Spring Boot service is already running..."
-    else
+    else 
       echo "$service: Start Spring Boot service..."
-      ./gradlew ${service}:bootRun --no-daemon > ${service}.log 2>&1 &
+      if [ "$DEBUG_MODE" = true ]; then
+        ./gradlew ${service}:bootRunDebug --no-daemon > ${service}.log 2>&1 &
+      else
+        ./gradlew ${service}:bootRun --no-daemon > ${service}.log 2>&1 &
+      fi
       echo "$service: Spring Boot service started as background process with PID $!"
       echo "$service: Logs are being written to ${service}.log"
     fi
