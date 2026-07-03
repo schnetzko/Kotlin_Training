@@ -197,7 +197,7 @@ tasks.register<Test>("integrationTest") {
 tasks.register<org.springframework.boot.gradle.tasks.run.BootRun>("bootRunDebug") {
     description = "Runs the Spring Boot application with a remote-debug agent on port 5005."
     group = "application"
-    mainClass.set("com.medical.management.DemoApplicationKt")
+    mainClass.set("com.medical.treatment.TreatmentApplicationKt")
     classpath = sourceSets["main"].runtimeClasspath
     jvmArgs(
         "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
