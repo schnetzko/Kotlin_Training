@@ -1,17 +1,16 @@
 #!/bin/bash
 
+set -e
 # Start Spring Boot application with PostgreSQL. 
 # Application provides multiple microservices. Each microservice represents
 # 2 processes - PostgreSQL Server as container and Spring Boot application.
-set -e
 
 DEBUG_MODE=false
 
-# Loop through all arguments passed to the script
 for arg in "$@"; do
   if [[ "$arg" == "-debug" ]]; then
     DEBUG_MODE=true
-    break # Stop looping once found
+    break
   else
     echo "Unknown argument: $arg"
     echo "Usage: ./start.sh [-debug]"
