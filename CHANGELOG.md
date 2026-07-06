@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.1.0-dev] - 2026-05-27
+## [0.1.0-dev] - 2026-07-06
 
 > ⚠️ This release is **not production-ready**. It is a development snapshot intended for prototyping and demonstration purposes only. It may lack proper error handling, security measures, and other production considerations.
 
@@ -78,9 +78,9 @@ The table below lists each endpoint and its exact log messages:
 
 ---
 
-#### Developer scripts
+#### Dev
 
-- Added helper scripts to manage the local development lifecycle: `start.sh`, `start_debug.sh`, `stop.sh`, `restart.sh`, `restart_debug.sh`, and `check.sh`. These scripts start/stop the `kotlin_training_postgres` container, wait for PostgreSQL readiness, ensure the `medical_data` database exists, and start/stop the Spring Boot application for convenience during development.
+- Added helper scripts to manage the local development lifecycle: `start.sh`, `stop.sh`, `restart.sh`, and `check.sh`. These scripts start/stop/restart all required PostgreSQL containers, wait for PostgreSQL readiness, ensure databases exist, and start/stop/restart Spring Boot services for convenience during development. `check.sh` can be used to verify if everything works as expected. `start.sh` and `restart.sh` can be executed with "-debug" option to debug Spring Boot services.
 - Added `docker-compose.yml` to bring up one PostgreSQL container per service with dedicated DB names: `treatment_db`, `diagnosis_db`, and `examination_db`.
 
 
